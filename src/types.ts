@@ -62,6 +62,8 @@ export interface KeyboardProps {
   selection?: { start: number; end: number };
   /** Callback when selection changes */
   onSelectionChange?: (selection: { start: number; end: number }) => void;
+  /** Reference to input element to maintain focus */
+  inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>;
 }
 
 export interface UseKeyboardOptions {
@@ -74,6 +76,8 @@ export interface UseKeyboardOptions {
   maxSuggestions?: number;
   selection?: { start: number; end: number };
   onSelectionChange?: (selection: { start: number; end: number }) => void;
+  /** Reference to input element to maintain focus */
+  inputRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>;
 }
 
 export interface KeyboardState {

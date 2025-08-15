@@ -38,6 +38,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   showNumbers = true,
   selection,
   onSelectionChange,
+  inputRef,
 }) => {
   const {
     isShiftPressed,
@@ -62,6 +63,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
     maxSuggestions,
     selection,
     onSelectionChange,
+    inputRef,
   });
 
   // Handle physical keyboard events
@@ -100,6 +102,11 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   }, [handleKeyPress, onKeyPress, showSuggestions, navigateSuggestions, hideSuggestions]);
 
   const handleVirtualKeyPress = (key: string) => {
+    // Ensure input maintains focus before processing the key
+    if (inputRef?.current && document.activeElement !== inputRef.current) {
+      inputRef.current.focus();
+    }
+    
     handleKeyPress(key);
     onKeyPress?.(key);
   };
@@ -107,6 +114,11 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   const handleVirtualKeyLongPress = (key: string) => {
     // For long press, we mainly handle backspace
     if (key === 'Backspace') {
+      // Ensure input maintains focus before processing the key
+      if (inputRef?.current && document.activeElement !== inputRef.current) {
+        inputRef.current.focus();
+      }
+      
       handleKeyPress(key);
       onKeyPress?.(key);
     }

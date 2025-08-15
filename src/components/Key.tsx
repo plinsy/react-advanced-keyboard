@@ -92,8 +92,12 @@ export const Key: FC<KeyProps> = ({
     }, 500)
   }
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return
+    
+    // Prevent default behavior to avoid focus loss
+    e.preventDefault()
+    
     setIsPressed(true)
     startLongPress()
   }
@@ -110,8 +114,12 @@ export const Key: FC<KeyProps> = ({
     clearLongPressTimers()
   }
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e: React.TouchEvent) => {
     if (disabled) return
+    
+    // Prevent default behavior to avoid focus loss
+    e.preventDefault()
+    
     setIsPressed(true)
     startLongPress()
   }
@@ -122,8 +130,12 @@ export const Key: FC<KeyProps> = ({
     clearLongPressTimers()
   }
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
     if (disabled) return
+    
+    // Prevent default behavior to avoid focus loss
+    e.preventDefault()
+    
     // Only fire single click if not in long press mode
     if (!isLongPressing) {
       onPress?.(getKeyToSend())
@@ -219,6 +231,7 @@ export const Key: FC<KeyProps> = ({
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}
       disabled={disabled}
+      tabIndex={-1}
       aria-label={keyData.label || keyData.key}
       {...props}>
       {getDisplayText()}

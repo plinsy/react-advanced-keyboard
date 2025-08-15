@@ -45,6 +45,10 @@
 @layer components {
     .keyboard-container {
         @apply bg-keyboard-bg border border-keyboard-border rounded-lg p-4 shadow-lg font-keyboard;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
     .keyboard-row {

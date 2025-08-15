@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useRef } from 'react'
 import { Keyboard } from '../components/Keyboard'
 import type { AutocompleteSuggestion } from '../types'
 
 export function Demo() {
   const [value, setValue] = useState('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Simple autocomplete suggestions for demo
   const getSuggestions = async (
@@ -81,6 +81,7 @@ export function Demo() {
         {/* Text Input Area */}
         <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg mb-6">
           <textarea
+            ref={textareaRef}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             className="w-full h-40 px-4 py-6 text-lg border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white resize-none font-mono focus:outline-none focus:ring-0"
@@ -103,6 +104,7 @@ export function Demo() {
             theme="light"
             showNumbers={true}
             onKeyPress={handleKeyPress}
+            inputRef={textareaRef}
           />
         </div>
       </div>

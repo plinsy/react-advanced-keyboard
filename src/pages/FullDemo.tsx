@@ -242,6 +242,7 @@ export function FullDemo() {
               showNumbers={showNumbers}
               onKeyPress={handleKeyPress}
               onShortcut={handleShortcut}
+              inputRef={textareaRef}
             />
           </div>
         </div>

@@ -13,6 +13,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     maxSuggestions = 5,
     selection: controlledSelection,
     onSelectionChange,
+    inputRef,
   } = options;
 
   const [state, setState] = useState<KeyboardState>(() => {
@@ -129,7 +130,21 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       };
       onSelectionChange?.(selection);
     }
-  }, [isControlled, isSelectionControlled, onChange, onSelectionChange]);
+
+    // Maintain focus on the input element after value update
+    if (inputRef?.current && document.activeElement !== inputRef.current) {
+      // Use setTimeout to ensure focus happens after React updates
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          // Also update the cursor position in the DOM element
+          if (newSelectionStart !== undefined && newSelectionEnd !== undefined) {
+            inputRef.current.setSelectionRange(newSelectionStart, newSelectionEnd);
+          }
+        }
+      }, 0);
+    }
+  }, [isControlled, isSelectionControlled, onChange, onSelectionChange, inputRef]);
 
   const updateSelection = useCallback((start: number, end: number) => {
     if (!isSelectionControlled) {
@@ -140,10 +155,28 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       }));
     }
     onSelectionChange?.({ start, end });
-  }, [isSelectionControlled, onSelectionChange]);
+
+    // Maintain focus and update cursor position in the DOM element
+    if (inputRef?.current) {
+      if (document.activeElement !== inputRef.current) {
+        inputRef.current.focus();
+      }
+      // Update cursor position in the DOM
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.setSelectionRange(start, end);
+        }
+      }, 0);
+    }
+  }, [isSelectionControlled, onSelectionChange, inputRef]);
 
   const handleKeyPress = useCallback((key: string) => {
     let newValue = currentValue;
+
+    // Ensure input element maintains focus
+    if (inputRef?.current && document.activeElement !== inputRef.current) {
+      inputRef.current.focus();
+    }
 
     // Handle modifier keys - they should not print text
     if (key === 'Control') {
@@ -300,7 +333,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
         return;
         break;
     }
-  }, [currentValue, state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.isAltPressed, state.isMetaPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValue]);
+  }, [currentValue, state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.isAltPressed, state.isMetaPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValue, inputRef]);
 
   const selectSuggestion = useCallback((index: number) => {
     if (index >= 0 && index < state.suggestions.length) {
