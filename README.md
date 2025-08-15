@@ -35,6 +35,10 @@ A highly configurable virtual keyboard component for React with comprehensive la
 ### 🔧 Advanced Features
 - **Real-time Autocomplete** with async suggestion loading
 - **Physical Keyboard Integration** - Works alongside virtual keyboard
+- **Keyboard Shortcuts** - Full support for Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+Z, Ctrl+Y
+- **Long-press Functionality** - Hold Backspace to delete continuously
+- **Modifier Key State** - Visual indication when Ctrl, Alt, Shift are active
+- **Smart Key Handling** - Modifier keys don't print text, only trigger actions
 - **Shift Key Support** - Proper symbol combinations (e.g., Shift + 1 = !)
 - **Caps Lock Support** - Toggle capitalization
 - **Key Press Animations** - Visual feedback
@@ -85,6 +89,7 @@ interface KeyboardProps {
   value?: string;                    // Current input value
   onChange?: (value: string) => void; // Value change handler
   onKeyPress?: (key: string) => void; // Key press handler
+  onShortcut?: (shortcut: string, currentValue: string) => void; // Keyboard shortcut handler
   layout?: KeyboardLayout;           // Keyboard layout
   config?: KeyboardConfig;           // Keyboard configuration
   theme?: 'light' | 'dark';          // Theme
@@ -188,6 +193,55 @@ const customConfig = {
   className="my-custom-keyboard" 
 />
 ```
+
+### Keyboard Shortcuts
+
+The component supports common keyboard shortcuts when Ctrl modifier is pressed:
+
+```tsx
+function MyApp() {
+  const [value, setValue] = useState('');
+
+  const handleShortcut = (shortcut: string, currentValue: string) => {
+    switch (shortcut) {
+      case 'selectAll':
+        // Handle Ctrl+A - Select all text
+        console.log('Select all triggered');
+        break;
+      case 'copy':
+        // Handle Ctrl+C - Copy to clipboard
+        console.log('Copy triggered');
+        break;
+      case 'paste':
+        // Handle Ctrl+V - Paste from clipboard
+        console.log('Paste triggered');
+        break;
+      case 'undo':
+        // Handle Ctrl+Z - Undo
+        console.log('Undo triggered');
+        break;
+      case 'redo':
+        // Handle Ctrl+Y - Redo
+        console.log('Redo triggered');
+        break;
+    }
+  };
+
+  return (
+    <Keyboard
+      value={value}
+      onChange={setValue}
+      onShortcut={handleShortcut}
+    />
+  );
+}
+```
+
+### Long-press Functionality
+
+- **Backspace Key**: Hold down the backspace key (mouse or touch) to continuously delete characters
+- **Auto-repeat**: After 500ms, backspace will repeat every 100ms until released
+- **Touch Support**: Works on both desktop (mouse) and mobile (touch) devices
 
 ## 🎨 Styling
 

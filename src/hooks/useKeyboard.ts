@@ -6,6 +6,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
   const {
     value: controlledValue,
     onChange,
+    onShortcut,
     enableAutocomplete = true,
     suggestions: customSuggestions,
     getSuggestions,
@@ -16,6 +17,9 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     value: controlledValue || '',
     isShiftPressed: false,
     isCapsLockOn: false,
+    isCtrlPressed: false,
+    isAltPressed: false,
+    isMetaPressed: false,
     suggestions: [],
     activeSuggestionIndex: -1,
     showSuggestions: false,
@@ -77,6 +81,60 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
   const handleKeyPress = useCallback((key: string) => {
     let newValue = currentValue;
 
+    // Handle modifier keys - they should not print text
+    if (key === 'Control') {
+      setState(prev => ({ ...prev, isCtrlPressed: !prev.isCtrlPressed }));
+      return;
+    }
+    if (key === 'Alt') {
+      setState(prev => ({ ...prev, isAltPressed: !prev.isAltPressed }));
+      return;
+    }
+    if (key === 'Meta') {
+      setState(prev => ({ ...prev, isMetaPressed: !prev.isMetaPressed }));
+      return;
+    }
+
+    // Handle keyboard shortcuts when Ctrl is pressed
+    if (state.isCtrlPressed) {
+      switch (key.toLowerCase()) {
+        case 'a':
+          // Select all text
+          onShortcut?.('selectAll', currentValue);
+          return;
+        case 'c':
+          // Copy - copy current value to clipboard
+          onShortcut?.('copy', currentValue);
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(currentValue);
+          }
+          return;
+        case 'v':
+          // Paste - this would need access to clipboard
+          onShortcut?.('paste', currentValue);
+          if (navigator.clipboard) {
+            navigator.clipboard.readText().then(text => {
+              updateValue(currentValue + text);
+            }).catch(err => {
+              console.log('Failed to read clipboard:', err);
+            });
+          }
+          return;
+        case 'z':
+          // Undo
+          onShortcut?.('undo', currentValue);
+          return;
+        case 'y':
+          // Redo
+          onShortcut?.('redo', currentValue);
+          return;
+        default:
+          // For other Ctrl combinations, don't add to text
+          return;
+      }
+    }
+
+    // Handle other special keys
     switch (key) {
       case 'Backspace':
         newValue = currentValue.slice(0, -1);
@@ -101,11 +159,18 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       case 'CapsLock':
         setState(prev => ({ ...prev, isCapsLockOn: !prev.isCapsLockOn }));
         return; // Don't update value for caps lock
+      case 'Tab':
+        newValue = currentValue + '\t';
+        break;
       case ' ':
         newValue = currentValue + ' ';
         // Hide suggestions when space is pressed
         setState(prev => ({ ...prev, showSuggestions: false, activeSuggestionIndex: -1 }));
         break;
+      case 'Escape':
+        // Hide suggestions when escape is pressed
+        setState(prev => ({ ...prev, showSuggestions: false, activeSuggestionIndex: -1 }));
+        return;
       default:
         // Handle letter keys with shift/caps lock
         let keyToAdd = key;
@@ -123,7 +188,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     }
 
     updateValue(newValue);
-  }, [currentValue, state.isShiftPressed, state.isCapsLockOn, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValue]);
+  }, [currentValue, state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.isAltPressed, state.isMetaPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValue]);
 
   const selectSuggestion = useCallback((index: number) => {
     if (index >= 0 && index < state.suggestions.length) {
@@ -166,6 +231,9 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     value: currentValue,
     isShiftPressed: state.isShiftPressed,
     isCapsLockOn: state.isCapsLockOn,
+    isCtrlPressed: state.isCtrlPressed,
+    isAltPressed: state.isAltPressed,
+    isMetaPressed: state.isMetaPressed,
     suggestions: state.suggestions,
     activeSuggestionIndex: state.activeSuggestionIndex,
     showSuggestions: state.showSuggestions,

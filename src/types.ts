@@ -34,6 +34,8 @@ export interface KeyboardProps {
   onChange?: (value: string) => void;
   /** Callback when a key is pressed */
   onKeyPress?: (key: string) => void;
+  /** Callback for handling keyboard shortcuts */
+  onShortcut?: (shortcut: string, currentValue: string) => void;
   /** Enable autocomplete functionality */
   enableAutocomplete?: boolean;
   /** Custom autocomplete suggestions */
@@ -61,6 +63,7 @@ export interface KeyboardProps {
 export interface UseKeyboardOptions {
   value?: string;
   onChange?: (value: string) => void;
+  onShortcut?: (shortcut: string, currentValue: string) => void;
   enableAutocomplete?: boolean;
   suggestions?: AutocompleteSuggestion[];
   getSuggestions?: (input: string) => Promise<AutocompleteSuggestion[]>;
@@ -71,6 +74,9 @@ export interface KeyboardState {
   value: string;
   isShiftPressed: boolean;
   isCapsLockOn: boolean;
+  isCtrlPressed: boolean;
+  isAltPressed: boolean;
+  isMetaPressed: boolean;
   suggestions: AutocompleteSuggestion[];
   activeSuggestionIndex: number;
   showSuggestions: boolean;

@@ -25,6 +25,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   value,
   onChange,
   onKeyPress,
+  onShortcut,
   enableAutocomplete = true,
   suggestions,
   getSuggestions,
@@ -40,6 +41,9 @@ export const Keyboard: React.FC<KeyboardProps> = ({
     value: currentValue,
     isShiftPressed,
     isCapsLockOn,
+    isCtrlPressed,
+    isAltPressed,
+    isMetaPressed,
     suggestions: currentSuggestions,
     activeSuggestionIndex,
     showSuggestions,
@@ -50,6 +54,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   } = useKeyboard({
     value,
     onChange,
+    onShortcut,
     enableAutocomplete,
     suggestions,
     getSuggestions,
@@ -73,6 +78,13 @@ export const Keyboard: React.FC<KeyboardProps> = ({
       
       if (event.key === 'Escape' && showSuggestions) {
         hideSuggestions();
+        return;
+      }
+      
+      // Handle Ctrl combinations
+      if (event.ctrlKey && event.key !== 'Control') {
+        handleKeyPress(event.key);
+        onKeyPress?.(event.key);
         return;
       }
       
@@ -137,6 +149,9 @@ export const Keyboard: React.FC<KeyboardProps> = ({
                 onPress={handleVirtualKeyPress}
                 isShiftPressed={isShiftPressed}
                 isCapsLockOn={isCapsLockOn}
+                isCtrlPressed={isCtrlPressed}
+                isAltPressed={isAltPressed}
+                isMetaPressed={isMetaPressed}
                 disabled={disabled}
                 className={clsx({
                   'text-white border-gray-500': theme === 'dark',
@@ -147,11 +162,11 @@ export const Keyboard: React.FC<KeyboardProps> = ({
         ))}
         
         {/* Input display (optional) */}
-        <div className="mt-4 p-2 bg-white border border-gray-300 rounded min-h-[40px] font-mono text-sm">
+        {/* <div className="mt-4 p-2 bg-white border border-gray-300 rounded min-h-[40px] font-mono text-sm">
           {currentValue || (
             <span className="text-gray-400">Start typing...</span>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

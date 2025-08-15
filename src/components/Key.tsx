@@ -34,6 +34,9 @@ interface KeyProps extends VariantProps<typeof keyVariants> {
   onPress?: (key: string) => void;
   isShiftPressed?: boolean;
   isCapsLockOn?: boolean;
+  isCtrlPressed?: boolean;
+  isAltPressed?: boolean;
+  isMetaPressed?: boolean;
   disabled?: boolean;
   className?: string;
 }
@@ -43,29 +46,86 @@ export const Key: React.FC<KeyProps> = ({
   onPress,
   isShiftPressed = false,
   isCapsLockOn = false,
+  isCtrlPressed = false,
+  isAltPressed = false,
+  isMetaPressed = false,
   disabled = false,
   className,
   ...props
 }) => {
   const [isPressed, setIsPressed] = React.useState(false);
+  const [isLongPressing, setIsLongPressing] = React.useState(false);
+  const longPressTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const longPressIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const clearLongPressTimers = () => {
+    if (longPressTimeoutRef.current) {
+      clearTimeout(longPressTimeoutRef.current);
+      longPressTimeoutRef.current = null;
+    }
+    if (longPressIntervalRef.current) {
+      clearInterval(longPressIntervalRef.current);
+      longPressIntervalRef.current = null;
+    }
+  };
+
+  const startLongPress = () => {
+    if (keyData.key !== 'Backspace') return;
+    
+    // Start long press after 500ms
+    longPressTimeoutRef.current = setTimeout(() => {
+      setIsLongPressing(true);
+      // Repeat backspace every 100ms while pressed
+      longPressIntervalRef.current = setInterval(() => {
+        onPress?.('Backspace');
+      }, 100);
+    }, 500);
+  };
 
   const handleMouseDown = () => {
     if (disabled) return;
     setIsPressed(true);
+    startLongPress();
   };
 
   const handleMouseUp = () => {
     setIsPressed(false);
+    setIsLongPressing(false);
+    clearLongPressTimers();
   };
 
   const handleMouseLeave = () => {
     setIsPressed(false);
+    setIsLongPressing(false);
+    clearLongPressTimers();
+  };
+
+  const handleTouchStart = () => {
+    if (disabled) return;
+    setIsPressed(true);
+    startLongPress();
+  };
+
+  const handleTouchEnd = () => {
+    setIsPressed(false);
+    setIsLongPressing(false);
+    clearLongPressTimers();
   };
 
   const handleClick = () => {
     if (disabled) return;
-    onPress?.(getKeyToSend());
+    // Only fire single click if not in long press mode
+    if (!isLongPressing) {
+      onPress?.(getKeyToSend());
+    }
   };
+
+  // Cleanup timers on unmount
+  React.useEffect(() => {
+    return () => {
+      clearLongPressTimers();
+    };
+  }, []);
 
   const getDisplayText = () => {
     if (keyData.label) return keyData.label;
@@ -97,12 +157,31 @@ export const Key: React.FC<KeyProps> = ({
     return keyData.key;
   };
 
+  const isModifierActive = () => {
+    switch (keyData.key) {
+      case 'Shift':
+        return isShiftPressed;
+      case 'CapsLock':
+        return isCapsLockOn;
+      case 'Control':
+        return isCtrlPressed;
+      case 'Alt':
+        return isAltPressed;
+      case 'Meta':
+        return isMetaPressed;
+      default:
+        return false;
+    }
+  };
+
   const getKeyStyles = () => {
+    const isActive = isModifierActive();
+    
     const baseStyles = {
       'bg-blue-200 border-blue-400 dark:bg-blue-800 dark:border-blue-600': 
-        keyData.type === 'shift' && isShiftPressed,
+        isActive,
       'bg-green-200 border-green-400 dark:bg-green-800 dark:border-green-600': 
-        keyData.type === 'modifier',
+        keyData.type === 'modifier' && !isActive,
       'bg-yellow-200 border-yellow-400 dark:bg-yellow-800 dark:border-yellow-600': 
         keyData.type === 'function',
     };
@@ -126,6 +205,8 @@ export const Key: React.FC<KeyProps> = ({
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       onClick={handleClick}
       disabled={disabled}
       aria-label={keyData.label || keyData.key}
