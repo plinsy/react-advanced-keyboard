@@ -42,8 +42,14 @@ A highly configurable virtual keyboard component for React with comprehensive la
 - **Shift Key Support** - Proper symbol combinations (e.g., Shift + 1 = !)
 - **Caps Lock Support** - Toggle capitalization
 - **Key Press Animations** - Visual feedback
+- **Rapid Typing Support** - Fixed race conditions for fast typing (characters appear in correct order)
 - **TypeScript Support** - Full type safety
 - **Responsive Design** - Works on all screen sizes
+
+## 🐛 Recent Fixes
+
+### Fast Typing Character Order Issue
+Fixed an issue where typing very quickly (like pressing 't' then 'y' rapidly) would sometimes cause characters to appear in the wrong order (e.g., "yt" instead of "ty"). This was caused by race conditions in state updates. The fix uses atomic state updates to ensure characters always appear in the correct sequence.
 
 ## 📦 Installation
 
