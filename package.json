@@ -24,6 +24,10 @@
     "preview": "vite preview",
     "lint": "eslint src/components src/hooks src/types.ts src/utils.ts src/layouts.ts src/index.ts --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
+    "version:bump": "node scripts/version-bump.js",
+    "version:bump:auto": "node scripts/version-bump.js --yes",
+    "publish:auto": "node scripts/auto-publish.js",
+    "publish:dry": "node scripts/auto-publish.js --dry-run",
     "prepublishOnly": "pnpm run type-check && pnpm run lint && pnpm run build",
     "postpublish": "echo 'Package published successfully! 🎉'"
   },

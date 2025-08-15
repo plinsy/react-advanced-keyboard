@@ -1,0 +1,118 @@
+{
+  "versionBumpConfig": {
+    "description": "Configuration for automatic version bumping based on file changes and commit messages",
+    
+    "scoring": {
+      "breakingChangeThreshold": 20,
+      "minorChangeThreshold": 10,
+      "filePatterns": {
+        "breaking": {
+          "score": 20,
+          "patterns": ["types.ts", "index.ts", "package.json"],
+          "description": "Files that likely contain breaking changes"
+        },
+        "major": {
+          "score": 10,
+          "patterns": ["components/Keyboard.tsx", "hooks/useKeyboard.ts"],
+          "description": "Core components that affect main functionality"
+        },
+        "components": {
+          "score": 8,
+          "patterns": ["components/"],
+          "description": "Component files"
+        },
+        "features": {
+          "score": 5,
+          "patterns": ["layouts.ts", "components/", "hooks/"],
+          "description": "New features and functionality"
+        },
+        "fixes": {
+          "score": 2,
+          "patterns": ["test", "spec", "fix", "bug"],
+          "description": "Bug fixes and test files"
+        },
+        "docs": {
+          "score": 1,
+          "patterns": ["README", ".md", "config", "eslint", "tsconfig"],
+          "description": "Documentation and configuration"
+        }
+      },
+      "changeTypes": {
+        "added": {
+          "score": 5,
+          "description": "Newly added files"
+        },
+        "modified": {
+          "score": 2,
+          "description": "Modified existing files"
+        },
+        "deleted": {
+          "score": 3,
+          "description": "Deleted files"
+        }
+      }
+    },
+    
+    "commitMessagePatterns": {
+      "breaking": {
+        "score": 20,
+        "patterns": ["BREAKING", "breaking change", "major:"],
+        "description": "Breaking change indicators"
+      },
+      "features": {
+        "score": 5,
+        "patterns": ["feat:", "feature:"],
+        "description": "New feature indicators"
+      },
+      "fixes": {
+        "score": 2,
+        "patterns": ["fix:", "bugfix:"],
+        "description": "Bug fix indicators"
+      }
+    },
+    
+    "versionRules": {
+      "major": {
+        "description": "Breaking changes, major API modifications",
+        "conditions": [
+          "Score >= 20",
+          "Breaking change patterns detected",
+          "Major API changes"
+        ]
+      },
+      "minor": {
+        "description": "New features, component additions",
+        "conditions": [
+          "Score >= 10 and < 20",
+          "New features detected",
+          "Component additions"
+        ]
+      },
+      "patch": {
+        "description": "Bug fixes, documentation, minor changes",
+        "conditions": [
+          "Score < 10",
+          "Bug fixes only",
+          "Documentation updates"
+        ]
+      }
+    },
+    
+    "excludePatterns": [
+      "node_modules/",
+      "dist/",
+      ".git/",
+      "coverage/",
+      "*.log",
+      ".DS_Store"
+    ],
+    
+    "gitSettings": {
+      "createTags": true,
+      "tagPrefix": "v",
+      "commitMessageTemplate": "chore: bump version to {version}",
+      "analyzeCommitHistory": true,
+      "maxCommitsToAnalyze": 10
+    }
+  }
+}
