@@ -64,11 +64,16 @@ export const Key: React.FC<KeyProps> = ({
 
   const handleClick = () => {
     if (disabled) return;
-    onPress?.(keyData.key);
+    onPress?.(getKeyToSend());
   };
 
   const getDisplayText = () => {
     if (keyData.label) return keyData.label;
+    
+    // Handle shift key combinations
+    if (keyData.shiftKey && isShiftPressed) {
+      return keyData.shiftKey;
+    }
     
     if (keyData.type === 'letter') {
       const shouldCapitalize = isShiftPressed || isCapsLockOn;
@@ -78,27 +83,44 @@ export const Key: React.FC<KeyProps> = ({
     return keyData.key;
   };
 
-  const getKeyVariant = () => {
-    switch (keyData.type) {
-      case 'shift':
-        return isShiftPressed ? 'pressed' : 'normal';
-      default:
-        return 'normal';
+  const getKeyToSend = () => {
+    // Send the shift key combination if shift is pressed and available
+    if (keyData.shiftKey && isShiftPressed) {
+      return keyData.shiftKey;
     }
+    
+    if (keyData.type === 'letter') {
+      const shouldCapitalize = isShiftPressed || isCapsLockOn;
+      return shouldCapitalize ? keyData.key.toUpperCase() : keyData.key;
+    }
+    
+    return keyData.key;
+  };
+
+  const getKeyStyles = () => {
+    const baseStyles = {
+      'bg-blue-200 border-blue-400 dark:bg-blue-800 dark:border-blue-600': 
+        keyData.type === 'shift' && isShiftPressed,
+      'bg-green-200 border-green-400 dark:bg-green-800 dark:border-green-600': 
+        keyData.type === 'modifier',
+      'bg-yellow-200 border-yellow-400 dark:bg-yellow-800 dark:border-yellow-600': 
+        keyData.type === 'function',
+    };
+    
+    return baseStyles;
   };
 
   return (
     <button
       type="button"
+      data-type={keyData.type}
       className={clsx(
         keyVariants({
           width: keyData.width,
           pressed: isPressed,
           disabled,
         }),
-        {
-          'bg-blue-200 border-blue-400': keyData.type === 'shift' && isShiftPressed,
-        },
+        getKeyStyles(),
         className
       )}
       onMouseDown={handleMouseDown}

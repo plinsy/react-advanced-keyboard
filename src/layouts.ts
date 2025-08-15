@@ -1,6 +1,313 @@
 import type { KeyboardLayout } from './types';
 
+// Full QWERTY layout for Windows/PC
+export const qwertyWindowsLayout: KeyboardLayout = {
+  name: 'QWERTY Windows',
+  type: 'qwerty',
+  platform: 'windows',
+  rows: [
+    // Function keys row
+    [
+      { key: 'Escape', label: 'Esc', type: 'function' },
+      { key: 'F1', type: 'function' },
+      { key: 'F2', type: 'function' },
+      { key: 'F3', type: 'function' },
+      { key: 'F4', type: 'function' },
+      { key: 'F5', type: 'function' },
+      { key: 'F6', type: 'function' },
+      { key: 'F7', type: 'function' },
+      { key: 'F8', type: 'function' },
+      { key: 'F9', type: 'function' },
+      { key: 'F10', type: 'function' },
+      { key: 'F11', type: 'function' },
+      { key: 'F12', type: 'function' },
+    ],
+    // Number row with symbols
+    [
+      { key: '`', shiftKey: '~', type: 'special' },
+      { key: '1', shiftKey: '!', type: 'number' },
+      { key: '2', shiftKey: '@', type: 'number' },
+      { key: '3', shiftKey: '#', type: 'number' },
+      { key: '4', shiftKey: '$', type: 'number' },
+      { key: '5', shiftKey: '%', type: 'number' },
+      { key: '6', shiftKey: '^', type: 'number' },
+      { key: '7', shiftKey: '&', type: 'number' },
+      { key: '8', shiftKey: '*', type: 'number' },
+      { key: '9', shiftKey: '(', type: 'number' },
+      { key: '0', shiftKey: ')', type: 'number' },
+      { key: '-', shiftKey: '_', type: 'special' },
+      { key: '=', shiftKey: '+', type: 'special' },
+      { key: 'Backspace', label: '⌫', width: 'wide', type: 'backspace' },
+    ],
+    // Top letter row
+    [
+      { key: 'Tab', label: '⇥', width: 'wide', type: 'modifier' },
+      { key: 'q', type: 'letter' },
+      { key: 'w', type: 'letter' },
+      { key: 'e', type: 'letter' },
+      { key: 'r', type: 'letter' },
+      { key: 't', type: 'letter' },
+      { key: 'y', type: 'letter' },
+      { key: 'u', type: 'letter' },
+      { key: 'i', type: 'letter' },
+      { key: 'o', type: 'letter' },
+      { key: 'p', type: 'letter' },
+      { key: '[', shiftKey: '{', type: 'special' },
+      { key: ']', shiftKey: '}', type: 'special' },
+      { key: '\\', shiftKey: '|', type: 'special' },
+    ],
+    // Middle letter row
+    [
+      { key: 'CapsLock', label: '⇪', width: 'wide', type: 'modifier' },
+      { key: 'a', type: 'letter' },
+      { key: 's', type: 'letter' },
+      { key: 'd', type: 'letter' },
+      { key: 'f', type: 'letter' },
+      { key: 'g', type: 'letter' },
+      { key: 'h', type: 'letter' },
+      { key: 'j', type: 'letter' },
+      { key: 'k', type: 'letter' },
+      { key: 'l', type: 'letter' },
+      { key: ';', shiftKey: ':', type: 'special' },
+      { key: "'", shiftKey: '"', type: 'special' },
+      { key: 'Enter', label: '↵', width: 'wide', type: 'enter' },
+    ],
+    // Bottom letter row
+    [
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+      { key: 'z', type: 'letter' },
+      { key: 'x', type: 'letter' },
+      { key: 'c', type: 'letter' },
+      { key: 'v', type: 'letter' },
+      { key: 'b', type: 'letter' },
+      { key: 'n', type: 'letter' },
+      { key: 'm', type: 'letter' },
+      { key: ',', shiftKey: '<', type: 'special' },
+      { key: '.', shiftKey: '>', type: 'special' },
+      { key: '/', shiftKey: '?', type: 'special' },
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+    ],
+    // Bottom modifier row
+    [
+      { key: 'Control', label: 'Ctrl', type: 'modifier' },
+      { key: 'Meta', label: 'Win', type: 'modifier' },
+      { key: 'Alt', type: 'modifier' },
+      { key: ' ', label: 'Space', width: 'extra-wide', type: 'space' },
+      { key: 'Alt', type: 'modifier' },
+      { key: 'Meta', label: 'Win', type: 'modifier' },
+      { key: 'ContextMenu', label: '☰', type: 'modifier' },
+      { key: 'Control', label: 'Ctrl', type: 'modifier' },
+    ],
+  ],
+};
+
+// Full QWERTY layout for Mac
+export const qwertyMacLayout: KeyboardLayout = {
+  name: 'QWERTY Mac',
+  type: 'qwerty',
+  platform: 'mac',
+  rows: [
+    // Function keys row
+    [
+      { key: 'Escape', label: 'esc', type: 'function' },
+      { key: 'F1', type: 'function' },
+      { key: 'F2', type: 'function' },
+      { key: 'F3', type: 'function' },
+      { key: 'F4', type: 'function' },
+      { key: 'F5', type: 'function' },
+      { key: 'F6', type: 'function' },
+      { key: 'F7', type: 'function' },
+      { key: 'F8', type: 'function' },
+      { key: 'F9', type: 'function' },
+      { key: 'F10', type: 'function' },
+      { key: 'F11', type: 'function' },
+      { key: 'F12', type: 'function' },
+    ],
+    // Number row with symbols
+    [
+      { key: '`', shiftKey: '~', type: 'special' },
+      { key: '1', shiftKey: '!', type: 'number' },
+      { key: '2', shiftKey: '@', type: 'number' },
+      { key: '3', shiftKey: '#', type: 'number' },
+      { key: '4', shiftKey: '$', type: 'number' },
+      { key: '5', shiftKey: '%', type: 'number' },
+      { key: '6', shiftKey: '^', type: 'number' },
+      { key: '7', shiftKey: '&', type: 'number' },
+      { key: '8', shiftKey: '*', type: 'number' },
+      { key: '9', shiftKey: '(', type: 'number' },
+      { key: '0', shiftKey: ')', type: 'number' },
+      { key: '-', shiftKey: '_', type: 'special' },
+      { key: '=', shiftKey: '+', type: 'special' },
+      { key: 'Backspace', label: '⌫', width: 'wide', type: 'backspace' },
+    ],
+    // Top letter row
+    [
+      { key: 'Tab', label: '⇥', width: 'wide', type: 'modifier' },
+      { key: 'q', type: 'letter' },
+      { key: 'w', type: 'letter' },
+      { key: 'e', type: 'letter' },
+      { key: 'r', type: 'letter' },
+      { key: 't', type: 'letter' },
+      { key: 'y', type: 'letter' },
+      { key: 'u', type: 'letter' },
+      { key: 'i', type: 'letter' },
+      { key: 'o', type: 'letter' },
+      { key: 'p', type: 'letter' },
+      { key: '[', shiftKey: '{', type: 'special' },
+      { key: ']', shiftKey: '}', type: 'special' },
+      { key: '\\', shiftKey: '|', type: 'special' },
+    ],
+    // Middle letter row
+    [
+      { key: 'CapsLock', label: '⇪', width: 'wide', type: 'modifier' },
+      { key: 'a', type: 'letter' },
+      { key: 's', type: 'letter' },
+      { key: 'd', type: 'letter' },
+      { key: 'f', type: 'letter' },
+      { key: 'g', type: 'letter' },
+      { key: 'h', type: 'letter' },
+      { key: 'j', type: 'letter' },
+      { key: 'k', type: 'letter' },
+      { key: 'l', type: 'letter' },
+      { key: ';', shiftKey: ':', type: 'special' },
+      { key: "'", shiftKey: '"', type: 'special' },
+      { key: 'Enter', label: '↵', width: 'wide', type: 'enter' },
+    ],
+    // Bottom letter row
+    [
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+      { key: 'z', type: 'letter' },
+      { key: 'x', type: 'letter' },
+      { key: 'c', type: 'letter' },
+      { key: 'v', type: 'letter' },
+      { key: 'b', type: 'letter' },
+      { key: 'n', type: 'letter' },
+      { key: 'm', type: 'letter' },
+      { key: ',', shiftKey: '<', type: 'special' },
+      { key: '.', shiftKey: '>', type: 'special' },
+      { key: '/', shiftKey: '?', type: 'special' },
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+    ],
+    // Bottom modifier row
+    [
+      { key: 'Control', label: '⌃', type: 'modifier' },
+      { key: 'Alt', label: '⌥', type: 'modifier' },
+      { key: 'Meta', label: '⌘', type: 'modifier' },
+      { key: ' ', label: 'Space', width: 'extra-wide', type: 'space' },
+      { key: 'Meta', label: '⌘', type: 'modifier' },
+      { key: 'Alt', label: '⌥', type: 'modifier' },
+      { key: 'Control', label: '⌃', type: 'modifier' },
+    ],
+  ],
+};
+
+// AZERTY layout for Windows/PC
+export const azertyWindowsLayout: KeyboardLayout = {
+  name: 'AZERTY Windows',
+  type: 'azerty',
+  platform: 'windows',
+  rows: [
+    // Function keys row
+    [
+      { key: 'Escape', label: 'Esc', type: 'function' },
+      { key: 'F1', type: 'function' },
+      { key: 'F2', type: 'function' },
+      { key: 'F3', type: 'function' },
+      { key: 'F4', type: 'function' },
+      { key: 'F5', type: 'function' },
+      { key: 'F6', type: 'function' },
+      { key: 'F7', type: 'function' },
+      { key: 'F8', type: 'function' },
+      { key: 'F9', type: 'function' },
+      { key: 'F10', type: 'function' },
+      { key: 'F11', type: 'function' },
+      { key: 'F12', type: 'function' },
+    ],
+    // Number row with symbols
+    [
+      { key: '²', shiftKey: '³', type: 'special' },
+      { key: '&', shiftKey: '1', type: 'number' },
+      { key: 'é', shiftKey: '2', type: 'number' },
+      { key: '"', shiftKey: '3', type: 'number' },
+      { key: "'", shiftKey: '4', type: 'number' },
+      { key: '(', shiftKey: '5', type: 'number' },
+      { key: '-', shiftKey: '6', type: 'number' },
+      { key: 'è', shiftKey: '7', type: 'number' },
+      { key: '_', shiftKey: '8', type: 'number' },
+      { key: 'ç', shiftKey: '9', type: 'number' },
+      { key: 'à', shiftKey: '0', type: 'number' },
+      { key: ')', shiftKey: '°', type: 'special' },
+      { key: '=', shiftKey: '+', type: 'special' },
+      { key: 'Backspace', label: '⌫', width: 'wide', type: 'backspace' },
+    ],
+    // Top letter row
+    [
+      { key: 'Tab', label: '⇥', width: 'wide', type: 'modifier' },
+      { key: 'a', type: 'letter' },
+      { key: 'z', type: 'letter' },
+      { key: 'e', type: 'letter' },
+      { key: 'r', type: 'letter' },
+      { key: 't', type: 'letter' },
+      { key: 'y', type: 'letter' },
+      { key: 'u', type: 'letter' },
+      { key: 'i', type: 'letter' },
+      { key: 'o', type: 'letter' },
+      { key: 'p', type: 'letter' },
+      { key: '^', shiftKey: '¨', type: 'special' },
+      { key: '$', shiftKey: '£', type: 'special' },
+      { key: '*', shiftKey: 'µ', type: 'special' },
+    ],
+    // Middle letter row
+    [
+      { key: 'CapsLock', label: '⇪', width: 'wide', type: 'modifier' },
+      { key: 'q', type: 'letter' },
+      { key: 's', type: 'letter' },
+      { key: 'd', type: 'letter' },
+      { key: 'f', type: 'letter' },
+      { key: 'g', type: 'letter' },
+      { key: 'h', type: 'letter' },
+      { key: 'j', type: 'letter' },
+      { key: 'k', type: 'letter' },
+      { key: 'l', type: 'letter' },
+      { key: 'm', type: 'letter' },
+      { key: 'ù', shiftKey: '%', type: 'special' },
+      { key: 'Enter', label: '↵', width: 'wide', type: 'enter' },
+    ],
+    // Bottom letter row
+    [
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+      { key: '<', shiftKey: '>', type: 'special' },
+      { key: 'w', type: 'letter' },
+      { key: 'x', type: 'letter' },
+      { key: 'c', type: 'letter' },
+      { key: 'v', type: 'letter' },
+      { key: 'b', type: 'letter' },
+      { key: 'n', type: 'letter' },
+      { key: ',', shiftKey: '?', type: 'special' },
+      { key: ';', shiftKey: '.', type: 'special' },
+      { key: ':', shiftKey: '/', type: 'special' },
+      { key: '!', shiftKey: '§', type: 'special' },
+      { key: 'Shift', label: '⇧', width: 'wide', type: 'shift' },
+    ],
+    // Bottom modifier row
+    [
+      { key: 'Control', label: 'Ctrl', type: 'modifier' },
+      { key: 'Meta', label: 'Win', type: 'modifier' },
+      { key: 'Alt', type: 'modifier' },
+      { key: ' ', label: 'Space', width: 'extra-wide', type: 'space' },
+      { key: 'Alt', type: 'modifier' },
+      { key: 'Meta', label: 'Win', type: 'modifier' },
+      { key: 'ContextMenu', label: '☰', type: 'modifier' },
+      { key: 'Control', label: 'Ctrl', type: 'modifier' },
+    ],
+  ],
+};
+
+// Compact layouts (existing ones updated)
 export const qwertyLayout: KeyboardLayout = {
+  name: 'QWERTY Compact',
+  type: 'qwerty',
+  platform: 'universal',
   rows: [
     // Number row
     [
@@ -63,11 +370,21 @@ export const qwertyLayout: KeyboardLayout = {
 };
 
 export const numberPadLayout: KeyboardLayout = {
+  name: 'Number Pad',
+  type: 'numpad',
+  platform: 'universal',
   rows: [
+    [
+      { key: 'NumLock', label: 'Num', type: 'modifier' },
+      { key: '/', type: 'special' },
+      { key: '*', type: 'special' },
+      { key: '-', type: 'special' },
+    ],
     [
       { key: '7', type: 'number' },
       { key: '8', type: 'number' },
       { key: '9', type: 'number' },
+      { key: '+', type: 'special' },
     ],
     [
       { key: '4', type: 'number' },
@@ -78,6 +395,7 @@ export const numberPadLayout: KeyboardLayout = {
       { key: '1', type: 'number' },
       { key: '2', type: 'number' },
       { key: '3', type: 'number' },
+      { key: 'Enter', label: '↵', type: 'enter' },
     ],
     [
       { key: '0', width: 'wide', type: 'number' },
@@ -87,6 +405,9 @@ export const numberPadLayout: KeyboardLayout = {
 };
 
 export const compactLayout: KeyboardLayout = {
+  name: 'Compact',
+  type: 'compact',
+  platform: 'universal',
   rows: [
     [
       { key: 'q', type: 'letter' },
@@ -127,3 +448,31 @@ export const compactLayout: KeyboardLayout = {
     ],
   ],
 };
+
+// Arrow keys layout
+export const arrowKeysLayout: KeyboardLayout = {
+  name: 'Arrow Keys',
+  type: 'compact',
+  platform: 'universal',
+  rows: [
+    [
+      { key: 'ArrowUp', label: '↑', type: 'function' },
+    ],
+    [
+      { key: 'ArrowLeft', label: '←', type: 'function' },
+      { key: 'ArrowDown', label: '↓', type: 'function' },
+      { key: 'ArrowRight', label: '→', type: 'function' },
+    ],
+  ],
+};
+
+// All available layouts
+export const availableLayouts = {
+  qwertyWindows: qwertyWindowsLayout,
+  qwertyMac: qwertyMacLayout,
+  azertyWindows: azertyWindowsLayout,
+  qwerty: qwertyLayout,
+  compact: compactLayout,
+  numberpad: numberPadLayout,
+  arrows: arrowKeysLayout,
+} as const;

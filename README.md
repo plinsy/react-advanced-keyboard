@@ -1,17 +1,45 @@
-# React Advanced Keyboard
+# Advanced React Keyboard Component
 
-A modern, customizable React virtual keyboard component with intelligent autocomplete functionality. Built with TypeScript, Tailwind CSS, and modern React patterns.
+A highly configurable virtual keyboard component for React with comprehensive layout support, autocomplete functionality, and platform-specific customization.
 
-## ✨ Features
+## 🚀 Features
 
-- 🎯 **Virtual Keyboard**: Full QWERTY, compact, and number pad layouts
-- 🧠 **Smart Autocomplete**: Built-in word suggestions with confidence scoring
-- ⚡ **Fast & Lightweight**: Optimized for performance with minimal dependencies
-- 🎨 **Customizable**: Multiple themes, layouts, and styling options
-- 🔧 **TypeScript**: Full type safety and excellent developer experience
-- ♿ **Accessible**: Built with accessibility in mind
-- 🎮 **Dual Input**: Supports both virtual and physical keyboard input
-- 📱 **Responsive**: Works great on desktop and mobile devices
+### 📱 Platform Support
+- **Windows/PC layouts** with full modifier key support (Ctrl, Win, Alt, etc.)
+- **Mac layouts** with proper symbol representations (⌘, ⌥, ⌃)
+- **Universal layouts** for cross-platform compatibility
+
+### ⌨️ Keyboard Layouts
+- **QWERTY** (English) - Full and compact versions
+- **AZERTY** (French) - Full Windows layout
+- **Dvorak** (Planned)
+- **Number Pad** - Dedicated numeric input
+- **Arrow Keys** - Navigation controls
+- **Function Keys** (F1-F12) with system integration
+
+### 🎨 Customization Options
+- **Theme Support** - Light and Dark modes
+- **Configurable Sections**:
+  - Function keys (F1-F12)
+  - Modifier keys (Ctrl, Alt, Shift, etc.)
+  - Number pad
+  - Arrow keys
+  - Number row
+- **Key Types**:
+  - Letters with proper capitalization
+  - Numbers with symbol combinations (Shift + number)
+  - Special characters and symbols
+  - Modifier keys with platform-specific labels
+  - Function keys
+
+### 🔧 Advanced Features
+- **Real-time Autocomplete** with async suggestion loading
+- **Physical Keyboard Integration** - Works alongside virtual keyboard
+- **Shift Key Support** - Proper symbol combinations (e.g., Shift + 1 = !)
+- **Caps Lock Support** - Toggle capitalization
+- **Key Press Animations** - Visual feedback
+- **TypeScript Support** - Full type safety
+- **Responsive Design** - Works on all screen sizes
 
 ## 📦 Installation
 
@@ -23,81 +51,354 @@ yarn add react-advanced-keyboard
 pnpm add react-advanced-keyboard
 ```
 
-## 🚀 Quick Start
+## 🎯 Quick Start
 
 ```tsx
 import React, { useState } from 'react';
 import { Keyboard } from 'react-advanced-keyboard';
-import 'react-advanced-keyboard/dist/style.css';
+import { qwertyWindowsLayout } from 'react-advanced-keyboard/layouts';
 
 function App() {
   const [value, setValue] = useState('');
 
   return (
+    <div>
+      <input value={value} onChange={(e) => setValue(e.target.value)} />
+      <Keyboard
+        value={value}
+        onChange={setValue}
+        layout={qwertyWindowsLayout}
+        theme="light"
+        enableAutocomplete={true}
+      />
+    </div>
+  );
+}
+```
+
+## 🔧 Configuration
+
+### Basic Props
+
+```tsx
+interface KeyboardProps {
+  value?: string;                    // Current input value
+  onChange?: (value: string) => void; // Value change handler
+  onKeyPress?: (key: string) => void; // Key press handler
+  layout?: KeyboardLayout;           // Keyboard layout
+  config?: KeyboardConfig;           // Keyboard configuration
+  theme?: 'light' | 'dark';          // Theme
+  enableAutocomplete?: boolean;      // Enable autocomplete
+  showNumbers?: boolean;             // Show number row
+  disabled?: boolean;                // Disable keyboard
+}
+```
+
+### Keyboard Configuration
+
+```tsx
+interface KeyboardConfig {
+  layout: 'qwerty' | 'azerty' | 'dvorak';
+  platform: 'windows' | 'mac';
+  showFunctionKeys: boolean;
+  showModifierKeys: boolean;
+  showNumpad: boolean;
+  showArrowKeys: boolean;
+}
+```
+
+### Available Layouts
+
+```tsx
+import {
+  qwertyWindowsLayout,    // Full QWERTY for Windows
+  qwertyMacLayout,        // Full QWERTY for Mac
+  azertyWindowsLayout,    // Full AZERTY for Windows
+  qwertyLayout,           // Compact QWERTY
+  compactLayout,          // Ultra-compact layout
+  numberPadLayout,        // Number pad only
+  arrowKeysLayout,        // Arrow keys only
+} from 'react-advanced-keyboard/layouts';
+```
+
+## 📋 Examples
+
+### Platform-Specific Setup
+
+```tsx
+import { detectPlatform, getDefaultConfig, getRecommendedLayoutFromConfig } from 'react-advanced-keyboard/utils';
+
+function SmartKeyboard() {
+  const platform = detectPlatform(); // Auto-detect Mac/Windows
+  const config = getDefaultConfig(platform);
+  const layout = getRecommendedLayoutFromConfig(config);
+
+  return (
     <Keyboard
-      value={value}
-      onChange={setValue}
-      enableAutocomplete={true}
-      onKeyPress={(key) => console.log('Key pressed:', key)}
+      layout={layout}
+      config={config}
+      theme="light"
     />
   );
 }
 ```
 
-## 📚 Components
-
-### Keyboard
-
-The main virtual keyboard component.
+### With Autocomplete
 
 ```tsx
-import { Keyboard } from 'react-advanced-keyboard';
+const getSuggestions = async (input: string) => {
+  const response = await fetch(`/api/suggestions?q=${input}`);
+  return response.json();
+};
 
 <Keyboard
-  value={value}
-  onChange={setValue}
   enableAutocomplete={true}
+  getSuggestions={getSuggestions}
   maxSuggestions={5}
+/>
+```
+
+### Custom Configuration
+
+```tsx
+const customConfig = {
+  layout: 'qwerty',
+  platform: 'windows',
+  showFunctionKeys: true,
+  showModifierKeys: true,
+  showNumpad: false,
+  showArrowKeys: true,
+};
+
+<Keyboard config={customConfig} />
+```
+
+### Theme Support
+
+```tsx
+// Light theme
+<Keyboard theme="light" />
+
+// Dark theme  
+<Keyboard theme="dark" />
+
+// With custom CSS classes
+<Keyboard 
+  theme="dark"
+  className="my-custom-keyboard" 
+/>
+```
+
+## 🎨 Styling
+
+The component uses CSS modules and supports custom styling:
+
+```css
+/* Custom key styling */
+.keyboard-key[data-type="function"] {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.keyboard-key[data-type="modifier"] {
+  background-color: #dcfce7;
+  border-color: #16a34a;
+}
+```
+
+## 🌍 Internationalization
+
+### AZERTY (French) Layout
+
+```tsx
+import { azertyWindowsLayout } from 'react-advanced-keyboard/layouts';
+
+<Keyboard layout={azertyWindowsLayout} />
+```
+
+### Custom Layout Creation
+
+```tsx
+const customLayout: KeyboardLayout = {
+  name: 'Custom Layout',
+  type: 'qwerty',
+  platform: 'universal',
+  rows: [
+    [
+      { key: 'q', type: 'letter' },
+      { key: 'w', type: 'letter' },
+      // ... more keys
+    ],
+    // ... more rows
+  ],
+};
+```
+
+## 🔧 Key Types
+
+- `letter` - Standard letters (a-z)
+- `number` - Numbers (0-9) with shift combinations
+- `special` - Special characters (punctuation, symbols)
+- `modifier` - Modifier keys (Ctrl, Alt, Shift, etc.)
+- `function` - Function keys (F1-F12, Esc)
+- `space` - Space bar
+- `enter` - Enter key
+- `backspace` - Backspace key
+- `shift` - Shift key with toggle state
+
+## 📱 Mobile Support
+
+The keyboard is fully responsive and supports touch interactions:
+
+```tsx
+// Touch-friendly configuration
+<Keyboard
+  layout={compactLayout}  // Use compact layout for mobile
   theme="light"
-  layout={qwertyLayout}
   showNumbers={true}
 />
 ```
 
-#### Props
+## 🔌 Integration Examples
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `value` | `string` | `undefined` | Current input value (controlled) |
-| `onChange` | `(value: string) => void` | `undefined` | Callback when value changes |
-| `onKeyPress` | `(key: string) => void` | `undefined` | Callback when a key is pressed |
-| `enableAutocomplete` | `boolean` | `true` | Enable autocomplete functionality |
-| `suggestions` | `AutocompleteSuggestion[]` | `undefined` | Custom suggestions array |
-| `getSuggestions` | `(input: string) => Promise<AutocompleteSuggestion[]>` | `undefined` | Async function to fetch suggestions |
-| `maxSuggestions` | `number` | `5` | Maximum number of suggestions to show |
-| `layout` | `KeyboardLayout` | `qwertyLayout` | Keyboard layout configuration |
-| `disabled` | `boolean` | `false` | Disable the keyboard |
-| `className` | `string` | `undefined` | Custom CSS classes |
-| `theme` | `'light' \| 'dark'` | `'light'` | Theme variant |
-| `showNumbers` | `boolean` | `true` | Show number row |
-
-### useKeyboard Hook
-
-For building custom keyboard components.
+### With Form Libraries
 
 ```tsx
-import { useKeyboard } from 'react-advanced-keyboard';
+// React Hook Form
+import { useController } from 'react-hook-form';
 
-function CustomKeyboard() {
-  const {
-    value,
-    suggestions,
-    showSuggestions,
-    handleKeyPress,
-    selectSuggestion,
-  } = useKeyboard({
-    enableAutocomplete: true,
-    maxSuggestions: 5,
+function FormKeyboard({ control, name }) {
+  const { field } = useController({ control, name });
+  
+  return (
+    <Keyboard
+      value={field.value}
+      onChange={field.onChange}
+    />
+  );
+}
+
+// Formik
+<Field name="message">
+  {({ field, form }) => (
+    <Keyboard
+      value={field.value}
+      onChange={(value) => form.setFieldValue(field.name, value)}
+    />
+  )}
+</Field>
+```
+
+### With State Management
+
+```tsx
+// Redux
+const dispatch = useDispatch();
+const value = useSelector(state => state.input.value);
+
+<Keyboard
+  value={value}
+  onChange={(newValue) => dispatch(updateInput(newValue))}
+/>
+
+// Zustand
+const { value, setValue } = useInputStore();
+
+<Keyboard value={value} onChange={setValue} />
+```
+
+## 🛠️ Development
+
+### Setup
+
+```bash
+git clone https://github.com/yourusername/react-advanced-keyboard
+cd react-advanced-keyboard
+npm install
+npm run dev
+```
+
+### Building
+
+```bash
+npm run build    # Build library
+npm run preview  # Preview build
+```
+
+### Testing
+
+The demo application is available at http://localhost:5175 when running `npm run dev`.
+
+## 📄 API Reference
+
+### Components
+
+- `<Keyboard />` - Main keyboard component
+- `<KeyboardConfigurator />` - Configuration UI
+- `<Key />` - Individual key component
+- `<Autocomplete />` - Autocomplete suggestions
+
+### Hooks
+
+- `useKeyboard()` - Keyboard state management
+
+### Utilities
+
+- `detectPlatform()` - Auto-detect user platform
+- `getDefaultConfig()` - Get default configuration
+- `getRecommendedLayoutFromConfig()` - Get recommended layout
+- `createCustomConfig()` - Create custom configuration
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Adding New Layouts
+
+```tsx
+// 1. Define the layout
+export const myCustomLayout: KeyboardLayout = {
+  name: 'My Custom Layout',
+  type: 'custom',
+  platform: 'universal',
+  rows: [
+    // Define your key rows
+  ],
+};
+
+// 2. Add to available layouts
+export const availableLayouts = {
+  // ... existing layouts
+  myCustom: myCustomLayout,
+};
+```
+
+## 📊 Browser Support
+
+- Chrome/Edge 88+
+- Firefox 85+
+- Safari 14+
+- Mobile Safari 14+
+- Chrome Android 88+
+
+## 📝 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by modern virtual keyboard implementations
+- Built with React, TypeScript, and Tailwind CSS
+- Uses class-variance-authority for component variants
+
+## 📞 Support
+
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/react-advanced-keyboard/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/react-advanced-keyboard/discussions)
+
+---
+
+Made with ❤️ by the React Advanced Keyboard team
   });
 
   // Custom implementation

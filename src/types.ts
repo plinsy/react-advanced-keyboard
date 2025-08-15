@@ -2,11 +2,24 @@ export interface KeyboardKey {
   key: string;
   label?: string;
   width?: 'normal' | 'wide' | 'extra-wide';
-  type?: 'letter' | 'number' | 'space' | 'backspace' | 'enter' | 'shift' | 'special';
+  type?: 'letter' | 'number' | 'space' | 'backspace' | 'enter' | 'shift' | 'special' | 'modifier' | 'function';
+  shiftKey?: string; // Alternative key when shift is pressed
 }
 
 export interface KeyboardLayout {
   rows: KeyboardKey[][];
+  name: string;
+  type: 'qwerty' | 'azerty' | 'dvorak' | 'compact' | 'numpad';
+  platform: 'windows' | 'mac' | 'universal';
+}
+
+export interface KeyboardConfig {
+  layout: 'qwerty' | 'azerty' | 'dvorak';
+  platform: 'windows' | 'mac';
+  showFunctionKeys: boolean;
+  showModifierKeys: boolean;
+  showNumpad: boolean;
+  showArrowKeys: boolean;
 }
 
 export interface AutocompleteSuggestion {
@@ -31,6 +44,8 @@ export interface KeyboardProps {
   maxSuggestions?: number;
   /** Custom keyboard layout */
   layout?: KeyboardLayout;
+  /** Keyboard configuration */
+  config?: KeyboardConfig;
   /** Disable the keyboard */
   disabled?: boolean;
   /** Custom CSS classes */

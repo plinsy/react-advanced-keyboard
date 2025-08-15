@@ -1,10 +1,25 @@
 import React from 'react';
 import { clsx } from 'clsx';
-import type { KeyboardProps } from '../types';
+import type { KeyboardProps, KeyboardConfig, KeyboardLayout } from '../types';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { qwertyLayout } from '../layouts';
 import { Key } from './Key';
 import { Autocomplete } from './Autocomplete';
+
+// Helper function to filter keyboard rows based on config
+const filterKeyboardRows = (layout: KeyboardLayout, config?: KeyboardConfig) => {
+  if (!config) return layout.rows;
+  
+  return layout.rows.filter((row, index) => {
+    // For Windows/Mac layouts with function keys
+    if (layout.platform !== 'universal' && index === 0) {
+      return config.showFunctionKeys;
+    }
+    
+    // Show all other rows by default
+    return true;
+  });
+};
 
 export const Keyboard: React.FC<KeyboardProps> = ({
   value,
@@ -15,11 +30,11 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   getSuggestions,
   maxSuggestions = 5,
   layout = qwertyLayout,
+  config,
   disabled = false,
   className,
   theme = 'light',
   showNumbers = true,
-  locale = 'en',
 }) => {
   const {
     value: currentValue,
@@ -75,16 +90,20 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   };
 
   const filteredLayout = React.useMemo(() => {
-    if (showNumbers) return layout;
+    let filteredRows = filterKeyboardRows(layout, config);
     
     // Filter out number row if showNumbers is false
+    if (!showNumbers) {
+      filteredRows = filteredRows.filter(row => 
+        !row.every(key => key.type === 'number' || key.type === 'backspace')
+      );
+    }
+    
     return {
       ...layout,
-      rows: layout.rows.filter(row => 
-        !row.every(key => key.type === 'number' || key.type === 'backspace')
-      ),
+      rows: filteredRows,
     };
-  }, [layout, showNumbers]);
+  }, [layout, config, showNumbers]);
 
   return (
     <div className={clsx('relative', className)}>
