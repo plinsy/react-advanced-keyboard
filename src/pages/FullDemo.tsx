@@ -5,11 +5,14 @@ import { KeyboardConfigurator } from '../components/KeyboardConfigurator';
 import { numberPadLayout, arrowKeysLayout } from '../layouts';
 import { detectPlatform, getDefaultConfig, getRecommendedLayout } from '../keyboardUtils';
 import type { AutocompleteSuggestion, KeyboardConfig, KeyboardLayout } from '../types';
+import { useRef, useEffect } from 'react';
 
 export function FullDemo() {
   const [value, setValue] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
+  const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   // Auto-detect platform and set default config
   const detectedPlatform = detectPlatform();
@@ -48,6 +51,28 @@ export function FullDemo() {
     console.log('Key pressed:', key);
   };
 
+  const handleValueChange = (newValue: string) => {
+    setValue(newValue);
+  };
+
+  const handleSelectionChange = (newSelection: { start: number; end: number }) => {
+    setSelection(newSelection);
+  };
+
+  const handleTextareaSelectionChange = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target as HTMLTextAreaElement;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    setSelection({ start, end });
+  };
+
+  // Sync textarea cursor position when virtual keyboard changes selection
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.setSelectionRange(selection.start, selection.end);
+    }
+  }, [selection]);
+
   const handleShortcut = (shortcut: string, currentValue: string) => {
     console.log('Shortcut triggered:', shortcut, 'with value:', currentValue);
     
@@ -83,12 +108,20 @@ export function FullDemo() {
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
             A configurable virtual keyboard with full PC/Mac support, multiple layouts, and autocomplete
           </p>
-          <Link 
-            to="/demo"
-            className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            Simple Demo →
-          </Link>
+          <div className="flex gap-4">
+            <Link 
+              to="/demo"
+              className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+            >
+              Simple Demo →
+            </Link>
+            <Link 
+              to="/backspace-demo"
+              className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              Enhanced Backspace Demo →
+            </Link>
+          </div>
         </header>
 
         {/* Main Input Area */}
@@ -97,8 +130,12 @@ export function FullDemo() {
             <h2 className="text-2xl font-semibold mb-4 text-center">Type Here</h2>
             <div className="max-w-4xl mx-auto">
               <textarea
+                ref={textareaRef}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                onSelect={handleTextareaSelectionChange}
+                onKeyUp={handleTextareaSelectionChange}
+                onMouseUp={handleTextareaSelectionChange}
                 className="w-full h-32 p-4 text-lg border border-gray-300 dark:border-gray-600 rounded-lg 
                          bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                          resize-none font-mono"
@@ -193,7 +230,9 @@ export function FullDemo() {
             
             <Keyboard
               value={value}
-              onChange={setValue}
+              onChange={handleValueChange}
+              selection={selection}
+              onSelectionChange={handleSelectionChange}
               layout={currentLayout}
               config={config}
               enableAutocomplete={enableAutocomplete}
@@ -214,7 +253,9 @@ export function FullDemo() {
               <h2 className="text-xl font-semibold mb-4">Number Pad</h2>
               <Keyboard
                 value={value}
-                onChange={setValue}
+                onChange={handleValueChange}
+                selection={selection}
+                onSelectionChange={handleSelectionChange}
                 layout={numberPadLayout}
                 enableAutocomplete={false}
                 theme={theme}
@@ -231,7 +272,9 @@ export function FullDemo() {
               <h2 className="text-xl font-semibold mb-4">Arrow Keys</h2>
               <Keyboard
                 value={value}
-                onChange={setValue}
+                onChange={handleValueChange}
+                selection={selection}
+                onSelectionChange={handleSelectionChange}
                 layout={arrowKeysLayout}
                 enableAutocomplete={false}
                 theme={theme}

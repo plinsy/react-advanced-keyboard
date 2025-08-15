@@ -10,7 +10,7 @@ import { Autocomplete } from './Autocomplete';
 const filterKeyboardRows = (layout: KeyboardLayout, config?: KeyboardConfig) => {
   if (!config) return layout.rows;
   
-  return layout.rows.filter((row, index) => {
+  return layout.rows.filter((_, index) => {
     // For Windows/Mac layouts with function keys
     if (layout.platform !== 'universal' && index === 0) {
       return config.showFunctionKeys;
@@ -36,9 +36,10 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   className,
   theme = 'light',
   showNumbers = true,
+  selection,
+  onSelectionChange,
 }) => {
   const {
-    value: currentValue,
     isShiftPressed,
     isCapsLockOn,
     isCtrlPressed,
@@ -59,6 +60,8 @@ export const Keyboard: React.FC<KeyboardProps> = ({
     suggestions,
     getSuggestions,
     maxSuggestions,
+    selection,
+    onSelectionChange,
   });
 
   // Handle physical keyboard events
@@ -101,6 +104,14 @@ export const Keyboard: React.FC<KeyboardProps> = ({
     onKeyPress?.(key);
   };
 
+  const handleVirtualKeyLongPress = (key: string) => {
+    // For long press, we mainly handle backspace
+    if (key === 'Backspace') {
+      handleKeyPress(key);
+      onKeyPress?.(key);
+    }
+  };
+
   const filteredLayout = React.useMemo(() => {
     let filteredRows = filterKeyboardRows(layout, config);
     
@@ -133,7 +144,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
       {/* Virtual keyboard */}
       <div
         className={clsx(
-          'keyboard-container',
+          'keyboard-container pt-12',
           {
             'opacity-50 pointer-events-none': disabled,
             'bg-gray-800 border-gray-600': theme === 'dark',
@@ -147,6 +158,7 @@ export const Keyboard: React.FC<KeyboardProps> = ({
                 key={`${rowIndex}-${keyIndex}-${keyData.key}`}
                 keyData={keyData}
                 onPress={handleVirtualKeyPress}
+                onLongPress={handleVirtualKeyLongPress}
                 isShiftPressed={isShiftPressed}
                 isCapsLockOn={isCapsLockOn}
                 isCtrlPressed={isCtrlPressed}
@@ -160,13 +172,6 @@ export const Keyboard: React.FC<KeyboardProps> = ({
             ))}
           </div>
         ))}
-        
-        {/* Input display (optional) */}
-        {/* <div className="mt-4 p-2 bg-white border border-gray-300 rounded min-h-[40px] font-mono text-sm">
-          {currentValue || (
-            <span className="text-gray-400">Start typing...</span>
-          )}
-        </div> */}
       </div>
     </div>
   );

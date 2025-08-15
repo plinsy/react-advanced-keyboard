@@ -22,7 +22,7 @@ export const Autocomplete: React.FC<AutocompleteProps> = ({
   }
 
   return (
-    <div className={clsx('autocomplete-container animate-suggestion-slide', className)}>
+    <div className={clsx('autocomplete-container animate-suggestion-slide w-full flex justify-between', className)}>
       {suggestions.map((suggestion, index) => (
         <div
           key={`${suggestion.text}-${index}`}

@@ -11,22 +11,62 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     suggestions: customSuggestions,
     getSuggestions,
     maxSuggestions = 5,
+    selection: controlledSelection,
+    onSelectionChange,
   } = options;
 
-  const [state, setState] = useState<KeyboardState>({
-    value: controlledValue || '',
-    isShiftPressed: false,
-    isCapsLockOn: false,
-    isCtrlPressed: false,
-    isAltPressed: false,
-    isMetaPressed: false,
-    suggestions: [],
-    activeSuggestionIndex: -1,
-    showSuggestions: false,
+  const [state, setState] = useState<KeyboardState>(() => {
+    const initialValue = controlledValue || '';
+    const defaultCursorPosition = initialValue.length;
+    
+    return {
+      value: initialValue,
+      isShiftPressed: false,
+      isCapsLockOn: false,
+      isCtrlPressed: false,
+      isAltPressed: false,
+      isMetaPressed: false,
+      suggestions: [],
+      activeSuggestionIndex: -1,
+      showSuggestions: false,
+      selectionStart: controlledSelection?.start ?? defaultCursorPosition,
+      selectionEnd: controlledSelection?.end ?? defaultCursorPosition,
+    };
   });
 
   const isControlled = controlledValue !== undefined;
   const currentValue = isControlled ? controlledValue : state.value;
+  const isSelectionControlled = controlledSelection !== undefined;
+  const currentSelection = isSelectionControlled ? controlledSelection : { start: state.selectionStart, end: state.selectionEnd };
+
+  // Update selection when controlled selection changes
+  useEffect(() => {
+    if (controlledSelection && isSelectionControlled) {
+      setState(prev => ({
+        ...prev,
+        selectionStart: controlledSelection.start,
+        selectionEnd: controlledSelection.end,
+      }));
+    }
+  }, [controlledSelection, isSelectionControlled]);
+
+  // Update cursor position when controlled value changes (but selection is not controlled)
+  useEffect(() => {
+    if (isControlled && !isSelectionControlled && controlledValue !== undefined) {
+      setState(prev => {
+        // Only update if the value actually changed and we don't have a controlled selection
+        if (prev.value !== controlledValue) {
+          const newCursorPosition = controlledValue.length;
+          return {
+            ...prev,
+            selectionStart: newCursorPosition,
+            selectionEnd: newCursorPosition,
+          };
+        }
+        return prev;
+      });
+    }
+  }, [controlledValue, isControlled, isSelectionControlled]);
 
   // Debounced function for fetching async suggestions
   const debouncedGetSuggestions = useRef(
@@ -71,12 +111,36 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     }
   }, [currentValue, enableAutocomplete, customSuggestions, getSuggestions, maxSuggestions, debouncedGetSuggestions]);
 
-  const updateValue = useCallback((newValue: string) => {
+  const updateValue = useCallback((newValue: string, newSelectionStart?: number, newSelectionEnd?: number) => {
     if (!isControlled) {
-      setState(prev => ({ ...prev, value: newValue }));
+      setState(prev => ({ 
+        ...prev, 
+        value: newValue,
+        selectionStart: newSelectionStart ?? newValue.length,
+        selectionEnd: newSelectionEnd ?? newValue.length,
+      }));
     }
     onChange?.(newValue);
-  }, [isControlled, onChange]);
+    
+    if (!isSelectionControlled && (newSelectionStart !== undefined || newSelectionEnd !== undefined)) {
+      const selection = {
+        start: newSelectionStart ?? newValue.length,
+        end: newSelectionEnd ?? newValue.length,
+      };
+      onSelectionChange?.(selection);
+    }
+  }, [isControlled, isSelectionControlled, onChange, onSelectionChange]);
+
+  const updateSelection = useCallback((start: number, end: number) => {
+    if (!isSelectionControlled) {
+      setState(prev => ({
+        ...prev,
+        selectionStart: start,
+        selectionEnd: end,
+      }));
+    }
+    onSelectionChange?.({ start, end });
+  }, [isSelectionControlled, onSelectionChange]);
 
   const handleKeyPress = useCallback((key: string) => {
     let newValue = currentValue;
@@ -100,13 +164,17 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       switch (key.toLowerCase()) {
         case 'a':
           // Select all text
+          updateSelection(0, currentValue.length);
           onShortcut?.('selectAll', currentValue);
           return;
         case 'c':
-          // Copy - copy current value to clipboard
-          onShortcut?.('copy', currentValue);
+          // Copy - copy selected text or current value to clipboard
+          const textToCopy = currentSelection.start !== currentSelection.end 
+            ? currentValue.substring(currentSelection.start, currentSelection.end)
+            : currentValue;
+          onShortcut?.('copy', textToCopy);
           if (navigator.clipboard) {
-            navigator.clipboard.writeText(currentValue);
+            navigator.clipboard.writeText(textToCopy);
           }
           return;
         case 'v':
@@ -114,7 +182,11 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           onShortcut?.('paste', currentValue);
           if (navigator.clipboard) {
             navigator.clipboard.readText().then(text => {
-              updateValue(currentValue + text);
+              // Insert pasted text at cursor position, replacing selection if any
+              const beforeCursor = currentValue.substring(0, currentSelection.start);
+              const afterCursor = currentValue.substring(currentSelection.end);
+              const newVal = beforeCursor + text + afterCursor;
+              updateValue(newVal, currentSelection.start + text.length, currentSelection.start + text.length);
             }).catch(err => {
               console.log('Failed to read clipboard:', err);
             });
@@ -137,7 +209,26 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     // Handle other special keys
     switch (key) {
       case 'Backspace':
-        newValue = currentValue.slice(0, -1);
+        const hasSelection = currentSelection.start !== currentSelection.end;
+        
+        if (hasSelection) {
+          // Delete selected text
+          const beforeSelection = currentValue.substring(0, currentSelection.start);
+          const afterSelection = currentValue.substring(currentSelection.end);
+          newValue = beforeSelection + afterSelection;
+          updateValue(newValue, currentSelection.start, currentSelection.start);
+          return;
+        } else if (currentSelection.start > 0) {
+          // Delete character before cursor
+          const beforeCursor = currentValue.substring(0, currentSelection.start - 1);
+          const afterCursor = currentValue.substring(currentSelection.start);
+          newValue = beforeCursor + afterCursor;
+          updateValue(newValue, currentSelection.start - 1, currentSelection.start - 1);
+          return;
+        } else {
+          // Nothing to delete
+          return;
+        }
         break;
       case 'Enter':
         if (state.showSuggestions && state.activeSuggestionIndex >= 0) {
@@ -149,8 +240,15 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
             showSuggestions: false,
             activeSuggestionIndex: -1,
           }));
+          updateValue(newValue);
+          return;
         } else {
-          newValue = currentValue + '\n';
+          // Insert newline at cursor position, replacing selection if any
+          const beforeCursor = currentValue.substring(0, currentSelection.start);
+          const afterCursor = currentValue.substring(currentSelection.end);
+          newValue = beforeCursor + '\n' + afterCursor;
+          updateValue(newValue, currentSelection.start + 1, currentSelection.start + 1);
+          return;
         }
         break;
       case 'Shift':
@@ -160,12 +258,22 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
         setState(prev => ({ ...prev, isCapsLockOn: !prev.isCapsLockOn }));
         return; // Don't update value for caps lock
       case 'Tab':
-        newValue = currentValue + '\t';
+        // Insert tab at cursor position, replacing selection if any
+        const beforeCursor = currentValue.substring(0, currentSelection.start);
+        const afterCursor = currentValue.substring(currentSelection.end);
+        newValue = beforeCursor + '\t' + afterCursor;
+        updateValue(newValue, currentSelection.start + 1, currentSelection.start + 1);
+        return;
         break;
       case ' ':
-        newValue = currentValue + ' ';
+        // Insert space at cursor position, replacing selection if any
+        const beforeCursorSpace = currentValue.substring(0, currentSelection.start);
+        const afterCursorSpace = currentValue.substring(currentSelection.end);
+        newValue = beforeCursorSpace + ' ' + afterCursorSpace;
+        updateValue(newValue, currentSelection.start + 1, currentSelection.start + 1);
         // Hide suggestions when space is pressed
         setState(prev => ({ ...prev, showSuggestions: false, activeSuggestionIndex: -1 }));
+        return;
         break;
       case 'Escape':
         // Hide suggestions when escape is pressed
@@ -183,11 +291,15 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
             setState(prev => ({ ...prev, isShiftPressed: false }));
           }
         }
-        newValue = currentValue + keyToAdd;
+        
+        // Insert character at cursor position, replacing selection if any
+        const beforeCursorChar = currentValue.substring(0, currentSelection.start);
+        const afterCursorChar = currentValue.substring(currentSelection.end);
+        newValue = beforeCursorChar + keyToAdd + afterCursorChar;
+        updateValue(newValue, currentSelection.start + keyToAdd.length, currentSelection.start + keyToAdd.length);
+        return;
         break;
     }
-
-    updateValue(newValue);
   }, [currentValue, state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.isAltPressed, state.isMetaPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValue]);
 
   const selectSuggestion = useCallback((index: number) => {
@@ -237,9 +349,11 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     suggestions: state.suggestions,
     activeSuggestionIndex: state.activeSuggestionIndex,
     showSuggestions: state.showSuggestions,
+    selection: { start: currentSelection.start, end: currentSelection.end },
     handleKeyPress,
     selectSuggestion,
     navigateSuggestions,
     hideSuggestions,
+    updateSelection,
   };
 }

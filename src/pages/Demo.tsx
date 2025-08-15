@@ -83,7 +83,7 @@ export function Demo() {
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="w-full h-40 px-4 py-6 text-lg border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
+            className="w-full h-40 px-4 py-6 text-lg border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white resize-none font-mono focus:outline-none focus:ring-0"
             placeholder="Click on the virtual keyboard below to start typing..."
           />
 

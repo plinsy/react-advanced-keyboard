@@ -58,6 +58,10 @@ export interface KeyboardProps {
   showNumbers?: boolean;
   /** Keyboard language/layout */
   locale?: 'en' | 'es' | 'fr' | 'de';
+  /** Current text selection */
+  selection?: { start: number; end: number };
+  /** Callback when selection changes */
+  onSelectionChange?: (selection: { start: number; end: number }) => void;
 }
 
 export interface UseKeyboardOptions {
@@ -68,6 +72,8 @@ export interface UseKeyboardOptions {
   suggestions?: AutocompleteSuggestion[];
   getSuggestions?: (input: string) => Promise<AutocompleteSuggestion[]>;
   maxSuggestions?: number;
+  selection?: { start: number; end: number };
+  onSelectionChange?: (selection: { start: number; end: number }) => void;
 }
 
 export interface KeyboardState {
@@ -80,4 +86,6 @@ export interface KeyboardState {
   suggestions: AutocompleteSuggestion[];
   activeSuggestionIndex: number;
   showSuggestions: boolean;
+  selectionStart: number;
+  selectionEnd: number;
 }
