@@ -32,8 +32,16 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       showSuggestions: false,
       selectionStart: controlledSelection?.start ?? defaultCursorPosition,
       selectionEnd: controlledSelection?.end ?? defaultCursorPosition,
+      lastDeletedPosition: null,
+      progressiveDeletionActive: false,
     };
   });
+
+  // Add a ref to track if a deletion operation is in progress
+  const deletionInProgressRef = useRef(false);
+  
+  // Add a ref to track progressive deletion timer
+  const progressiveDeletionTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isControlled = controlledValue !== undefined;
   const currentValue = isControlled ? controlledValue : state.value;
@@ -146,7 +154,14 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     }
   }, [isControlled, isSelectionControlled, onChange, onSelectionChange, inputRef]);
 
-  const updateValueWithCallback = useCallback((updateFn: (currentValue: string, currentSelection: { start: number; end: number }) => { newValue: string; newSelectionStart?: number; newSelectionEnd?: number }) => {
+  const updateValueWithCallback = useCallback((updateFn: (currentValue: string, currentSelection: { start: number; end: number }) => { 
+    newValue: string; 
+    newSelectionStart?: number; 
+    newSelectionEnd?: number;
+    resetProgressiveDeletion?: boolean;
+    enableProgressiveDeletion?: boolean;
+    newDeletedPosition?: number;
+  }) => {
     setState(prev => {
       const currentVal = isControlled ? (controlledValue ?? '') : prev.value;
       const currentSel = isSelectionControlled ? (controlledSelection ?? { start: 0, end: 0 }) : { start: prev.selectionStart, end: prev.selectionEnd };
@@ -165,6 +180,20 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
         onSelectionChange?.(selection);
       }
 
+      // Handle progressive deletion state updates
+      let progressiveDeletionUpdate = {};
+      if (result.resetProgressiveDeletion) {
+        progressiveDeletionUpdate = {
+          progressiveDeletionActive: false,
+          lastDeletedPosition: null,
+        };
+      } else if (result.enableProgressiveDeletion) {
+        progressiveDeletionUpdate = {
+          progressiveDeletionActive: true,
+          lastDeletedPosition: result.newDeletedPosition,
+        };
+      }
+
       // Update local state only if not controlled
       if (!isControlled) {
         return {
@@ -172,6 +201,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           value: result.newValue,
           selectionStart: result.newSelectionStart ?? result.newValue.length,
           selectionEnd: result.newSelectionEnd ?? result.newValue.length,
+          ...progressiveDeletionUpdate,
         };
       }
       
@@ -181,10 +211,14 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           ...prev,
           selectionStart: result.newSelectionStart ?? result.newValue.length,
           selectionEnd: result.newSelectionEnd ?? result.newValue.length,
+          ...progressiveDeletionUpdate,
         };
       }
       
-      return prev;
+      return {
+        ...prev,
+        ...progressiveDeletionUpdate,
+      };
     });
 
     // Maintain focus on the input element after value update
@@ -313,11 +347,138 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
     // Handle other special keys
     switch (key) {
       case 'Backspace':
+        // Prevent overlapping deletion operations
+        if (deletionInProgressRef.current) return;
+        
+        deletionInProgressRef.current = true;
         updateValueWithCallback((currentValue, currentSelection) => {
           const hasSelection = currentSelection.start !== currentSelection.end;
           
           if (hasSelection) {
-            // Delete selected text
+            // Delete selected text - reset progressive deletion
+            const beforeSelection = currentValue.substring(0, currentSelection.start);
+            const afterSelection = currentValue.substring(currentSelection.end);
+            const newValue = beforeSelection + afterSelection;
+            
+            // Clear progressive deletion timer and reset state
+            if (progressiveDeletionTimerRef.current) {
+              clearTimeout(progressiveDeletionTimerRef.current);
+              progressiveDeletionTimerRef.current = null;
+            }
+            
+            return { 
+              newValue, 
+              newSelectionStart: currentSelection.start, 
+              newSelectionEnd: currentSelection.start,
+              resetProgressiveDeletion: true
+            };
+          } else if (currentSelection.start > 0) {
+            // Check for progressive deletion logic
+            const currentPosition = currentSelection.start;
+            
+            // Progressive deletion: only allow deletion of the next character if previous was deleted
+            if (state.progressiveDeletionActive && state.lastDeletedPosition !== null) {
+              // Check if we're trying to delete the expected next character
+              if (currentPosition !== state.lastDeletedPosition) {
+                // Not the expected position, don't delete
+                return { newValue: currentValue };
+              }
+            }
+            
+            // Check if Ctrl is pressed for word deletion
+            if (state.isCtrlPressed) {
+              // Delete whole word or whitespace before cursor
+              const beforeCursor = currentValue.substring(0, currentSelection.start);
+              const afterCursor = currentValue.substring(currentSelection.start);
+              
+              // Find the start of the current word or group of whitespace
+              let deleteStart = currentSelection.start;
+              
+              // If we're at whitespace, delete all whitespace before cursor
+              if (beforeCursor[deleteStart - 1] && /\s/.test(beforeCursor[deleteStart - 1])) {
+                while (deleteStart > 0 && /\s/.test(beforeCursor[deleteStart - 1])) {
+                  deleteStart--;
+                }
+              } else {
+                // Delete word characters before cursor
+                while (deleteStart > 0 && /\w/.test(beforeCursor[deleteStart - 1])) {
+                  deleteStart--;
+                }
+              }
+              
+              const newValue = currentValue.substring(0, deleteStart) + afterCursor;
+              
+              // Clear progressive deletion timer and reset state for word deletion
+              if (progressiveDeletionTimerRef.current) {
+                clearTimeout(progressiveDeletionTimerRef.current);
+                progressiveDeletionTimerRef.current = null;
+              }
+              
+              return { 
+                newValue, 
+                newSelectionStart: deleteStart, 
+                newSelectionEnd: deleteStart,
+                resetProgressiveDeletion: true
+              };
+            } else {
+              // Delete single character before cursor
+              const beforeCursor = currentValue.substring(0, currentSelection.start - 1);
+              const afterCursor = currentValue.substring(currentSelection.start);
+              const newValue = beforeCursor + afterCursor;
+              const newPosition = currentSelection.start - 1;
+              
+              // Set up progressive deletion state
+              // Clear existing timer
+              if (progressiveDeletionTimerRef.current) {
+                clearTimeout(progressiveDeletionTimerRef.current);
+              }
+              
+              // Set up timer to reset progressive deletion after 2 seconds of inactivity
+              progressiveDeletionTimerRef.current = setTimeout(() => {
+                setState(prev => ({
+                  ...prev,
+                  progressiveDeletionActive: false,
+                  lastDeletedPosition: null,
+                }));
+                progressiveDeletionTimerRef.current = null;
+              }, 2000);
+              
+              return { 
+                newValue, 
+                newSelectionStart: newPosition, 
+                newSelectionEnd: newPosition,
+                enableProgressiveDeletion: true,
+                newDeletedPosition: newPosition
+              };
+            }
+          } else {
+            // Nothing to delete - reset progressive deletion
+            if (progressiveDeletionTimerRef.current) {
+              clearTimeout(progressiveDeletionTimerRef.current);
+              progressiveDeletionTimerRef.current = null;
+            }
+            return { 
+              newValue: currentValue,
+              resetProgressiveDeletion: true
+            };
+          }
+        });
+        
+        // Reset the flag after a small delay to allow the state update to complete
+        setTimeout(() => {
+          deletionInProgressRef.current = false;
+        }, 50);
+        return;
+      case 'Delete':
+        // Prevent overlapping deletion operations
+        if (deletionInProgressRef.current) return;
+        
+        deletionInProgressRef.current = true;
+        updateValueWithCallback((currentValue, currentSelection) => {
+          const hasSelection = currentSelection.start !== currentSelection.end;
+          
+          if (hasSelection) {
+            // Delete selected text (same as backspace when text is selected)
             const beforeSelection = currentValue.substring(0, currentSelection.start);
             const afterSelection = currentValue.substring(currentSelection.end);
             const newValue = beforeSelection + afterSelection;
@@ -326,21 +487,55 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
               newSelectionStart: currentSelection.start, 
               newSelectionEnd: currentSelection.start 
             };
-          } else if (currentSelection.start > 0) {
-            // Delete character before cursor
-            const beforeCursor = currentValue.substring(0, currentSelection.start - 1);
-            const afterCursor = currentValue.substring(currentSelection.start);
-            const newValue = beforeCursor + afterCursor;
-            return { 
-              newValue, 
-              newSelectionStart: currentSelection.start - 1, 
-              newSelectionEnd: currentSelection.start - 1 
-            };
+          } else if (currentSelection.start < currentValue.length) {
+            // Check if Ctrl is pressed for word deletion
+            if (state.isCtrlPressed) {
+              // Delete whole word or whitespace after cursor
+              const beforeCursor = currentValue.substring(0, currentSelection.start);
+              const afterCursor = currentValue.substring(currentSelection.start);
+              
+              // Find the end of the current word or group of whitespace
+              let deleteEnd = currentSelection.start;
+              
+              // If we're at whitespace, delete all whitespace after cursor
+              if (afterCursor[0] && /\s/.test(afterCursor[0])) {
+                while (deleteEnd < currentValue.length && /\s/.test(currentValue[deleteEnd])) {
+                  deleteEnd++;
+                }
+              } else {
+                // Delete word characters after cursor
+                while (deleteEnd < currentValue.length && /\w/.test(currentValue[deleteEnd])) {
+                  deleteEnd++;
+                }
+              }
+              
+              const newValue = beforeCursor + currentValue.substring(deleteEnd);
+              return { 
+                newValue, 
+                newSelectionStart: currentSelection.start, 
+                newSelectionEnd: currentSelection.start 
+              };
+            } else {
+              // Delete single character after cursor
+              const beforeCursor = currentValue.substring(0, currentSelection.start);
+              const afterCursor = currentValue.substring(currentSelection.start + 1);
+              const newValue = beforeCursor + afterCursor;
+              return { 
+                newValue, 
+                newSelectionStart: currentSelection.start, 
+                newSelectionEnd: currentSelection.start 
+              };
+            }
           } else {
             // Nothing to delete
             return { newValue: currentValue };
           }
         });
+        
+        // Reset the flag after a small delay to allow the state update to complete
+        setTimeout(() => {
+          deletionInProgressRef.current = false;
+        }, 50);
         return;
       case 'Enter':
         if (state.showSuggestions && state.activeSuggestionIndex >= 0) {
@@ -396,10 +591,18 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           const newValue = beforeCursorSpace + ' ' + afterCursorSpace;
           // Hide suggestions when space is pressed
           setState(prev => ({ ...prev, showSuggestions: false, activeSuggestionIndex: -1 }));
+          
+          // Clear progressive deletion timer and reset state
+          if (progressiveDeletionTimerRef.current) {
+            clearTimeout(progressiveDeletionTimerRef.current);
+            progressiveDeletionTimerRef.current = null;
+          }
+          
           return { 
             newValue, 
             newSelectionStart: currentSelection.start + 1, 
-            newSelectionEnd: currentSelection.start + 1 
+            newSelectionEnd: currentSelection.start + 1,
+            resetProgressiveDeletion: true
           };
         });
         return;
@@ -421,6 +624,12 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
             }
           }
           
+          // Clear progressive deletion timer and reset state when typing
+          if (progressiveDeletionTimerRef.current) {
+            clearTimeout(progressiveDeletionTimerRef.current);
+            progressiveDeletionTimerRef.current = null;
+          }
+          
           // Insert character at cursor position, replacing selection if any
           const beforeCursorChar = currentValue.substring(0, currentSelection.start);
           const afterCursorChar = currentValue.substring(currentSelection.end);
@@ -428,7 +637,8 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
           return { 
             newValue, 
             newSelectionStart: currentSelection.start + keyToAdd.length, 
-            newSelectionEnd: currentSelection.start + keyToAdd.length 
+            newSelectionEnd: currentSelection.start + keyToAdd.length,
+            resetProgressiveDeletion: true
           };
         });
         return;
@@ -470,6 +680,16 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
       showSuggestions: false,
       activeSuggestionIndex: -1,
     }));
+  }, []);
+
+  // Cleanup effect for progressive deletion timer
+  useEffect(() => {
+    return () => {
+      if (progressiveDeletionTimerRef.current) {
+        clearTimeout(progressiveDeletionTimerRef.current);
+        progressiveDeletionTimerRef.current = null;
+      }
+    };
   }, []);
 
   return {

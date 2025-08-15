@@ -112,15 +112,16 @@ export const Keyboard: React.FC<KeyboardProps> = ({
   };
 
   const handleVirtualKeyLongPress = (key: string) => {
+    console.log("handleVirtualKeyLongPress", key);
+    
     // For long press, we mainly handle backspace
     if (key === 'Backspace') {
+      handleKeyPress(key);
+      onKeyPress?.(key);
       // Ensure input maintains focus before processing the key
       if (inputRef?.current && document.activeElement !== inputRef.current) {
         inputRef.current.focus();
       }
-      
-      handleKeyPress(key);
-      onKeyPress?.(key);
     }
   };
 

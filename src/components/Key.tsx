@@ -69,26 +69,22 @@ export const Key: FC<KeyProps> = ({
   }
 
   const startLongPress = () => {
-    if (keyData.key !== 'Backspace') return
+    if (keyData.key !== 'Backspace' && keyData.key !== 'Delete') return
+
+    console.log("startLongPress");
+    
 
     // Start long press after 500ms
     longPressTimeoutRef.current = setTimeout(() => {
       setIsLongPressing(true)
+      
       // Initial long press action
       onLongPress?.(keyData.key)
-      // Repeat backspace every 150ms while pressed (progressive speed)
-      let interval = 150
+      
+      // Use a simple fixed interval to avoid race conditions
       longPressIntervalRef.current = setInterval(() => {
         onLongPress?.(keyData.key)
-        // Gradually increase speed (decrease interval) up to 50ms
-        if (interval > 50) {
-          interval = Math.max(50, interval - 10)
-          clearInterval(longPressIntervalRef.current!)
-          longPressIntervalRef.current = setInterval(() => {
-            onLongPress?.(keyData.key)
-          }, interval)
-        }
-      }, interval)
+      }, 150) // Fixed 150ms interval for consistent behavior
     }, 500)
   }
 
@@ -205,7 +201,9 @@ export const Key: FC<KeyProps> = ({
       'bg-green-200 border-green-400 dark:bg-green-800 dark:border-green-600':
         keyData.type === 'modifier' && !isActive,
       'bg-yellow-200 border-yellow-400 dark:bg-yellow-800 dark:border-yellow-600':
-        keyData.type === 'function'
+        keyData.type === 'function',
+      'bg-red-200 border-red-400 dark:bg-red-800 dark:border-red-600 animate-pulse':
+        isLongPressing && (keyData.key === 'Backspace' || keyData.key === 'Delete')
     }
 
     return baseStyles

@@ -36,7 +36,11 @@ A highly configurable virtual keyboard component for React with comprehensive la
 - **Real-time Autocomplete** with async suggestion loading
 - **Physical Keyboard Integration** - Works alongside virtual keyboard
 - **Keyboard Shortcuts** - Full support for Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+Z, Ctrl+Y
-- **Long-press Functionality** - Hold Backspace to delete continuously
+- **Enhanced Deletion**:
+  - **Long-press Backspace/Delete** - Hold to delete continuously with progressive acceleration
+  - **Word-level deletion** - Ctrl+Backspace deletes words before cursor, Ctrl+Delete deletes words after cursor
+  - **Selection deletion** - Delete entire text selections instantly
+  - **Visual feedback** - Deletion keys pulse red during long-press operations
 - **Modifier Key State** - Visual indication when Ctrl, Alt, Shift are active
 - **Smart Key Handling** - Modifier keys don't print text, only trigger actions
 - **Shift Key Support** - Proper symbol combinations (e.g., Shift + 1 = !)
@@ -50,6 +54,13 @@ A highly configurable virtual keyboard component for React with comprehensive la
 
 ### Fast Typing Character Order Issue
 Fixed an issue where typing very quickly (like pressing 't' then 'y' rapidly) would sometimes cause characters to appear in the wrong order (e.g., "yt" instead of "ty"). This was caused by race conditions in state updates. The fix uses atomic state updates to ensure characters always appear in the correct sequence.
+
+### Enhanced Backspace & Delete Functionality
+- **Progressive acceleration**: Long-press deletion starts slow and speeds up for better control
+- **Word-level deletion**: Ctrl+Backspace/Delete for deleting entire words
+- **Visual feedback**: Keys pulse red during long-press operations
+- **Improved selection handling**: Better text selection deletion behavior
+- **Delete key support**: Full delete functionality with forward deletion
 
 ## 📦 Installation
 

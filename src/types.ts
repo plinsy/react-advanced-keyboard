@@ -92,4 +92,6 @@ export interface KeyboardState {
   showSuggestions: boolean;
   selectionStart: number;
   selectionEnd: number;
+  lastDeletedPosition: number | null;
+  progressiveDeletionActive: boolean;
 }

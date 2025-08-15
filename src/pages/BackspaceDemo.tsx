@@ -3,10 +3,17 @@ import { Link } from 'react-router-dom';
 import { Keyboard } from '../components/Keyboard';
 
 export function BackspaceDemo() {
-  const [value, setValue] = useState('This is a test text. Try selecting some text and pressing backspace. You can also long-press backspace to delete progressively.');
+  const [value, setValue] = useState('This is a test text with multiple words. Try selecting some text and pressing backspace. You can also long-press backspace to delete progressively, or use Ctrl+Backspace to delete whole words at once.');
   const [selection, setSelection] = useState({ start: 0, end: 0 });
+  const [deleteLog, setDeleteLog] = useState<string[]>([]);
 
   const handleValueChange = (newValue: string) => {
+    // Log what was deleted
+    if (newValue.length < value.length) {
+      const deletedText = value.substring(newValue.length);
+      const deletedCount = value.length - newValue.length;
+      setDeleteLog(prev => [...prev.slice(-4), `Deleted ${deletedCount} char(s): "${deletedText}"`]);
+    }
     setValue(newValue);
   };
 
@@ -42,22 +49,41 @@ export function BackspaceDemo() {
 
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-2">Features to Test:</h2>
+            <h2 className="text-xl font-semibold mb-2">Enhanced Backspace Features:</h2>
             <ul className="list-disc list-inside text-gray-700 space-y-1">
               <li>
-                <strong>Long Press Backspace:</strong> Hold down the backspace key for progressive deletion
+                <strong>Single Backspace:</strong> Delete one character at a time
               </li>
               <li>
-                <strong>Selection Deletion:</strong> Select text using the buttons below and press backspace
+                <strong>Long Press Backspace:</strong> Hold down backspace for accelerated deletion (gets faster over time)
               </li>
               <li>
-                <strong>Normal Backspace:</strong> Single press deletes one character at a time
+                <strong>Selection Deletion:</strong> Select text and press backspace to delete the entire selection
+              </li>
+              <li>
+                <strong>Word Deletion:</strong> Hold Ctrl+Backspace to delete whole words at once
+              </li>
+              <li>
+                <strong>Visual Feedback:</strong> Backspace key pulses red during long-press deletion
               </li>
               <li>
                 <strong>Keyboard Shortcuts:</strong> Ctrl+A to select all, Ctrl+C to copy, Ctrl+V to paste
               </li>
             </ul>
           </div>
+          
+          {deleteLog.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Recent Deletions:</h3>
+              <div className="p-2 bg-gray-100 border rounded text-sm max-h-20 overflow-y-auto">
+                {deleteLog.map((log, index) => (
+                  <div key={index} className="text-gray-600 font-mono">
+                    {log}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mb-4">
             <h3 className="text-lg font-medium mb-2">Text Selection Helper:</h3>
@@ -75,16 +101,28 @@ export function BackspaceDemo() {
                 Select "is a test"
               </button>
               <button
-                onClick={() => handleSelectText(16, 21)}
+                onClick={() => handleSelectText(16, 30)}
                 className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
               >
-                Select "text."
+                Select "text with..."
+              </button>
+              <button
+                onClick={() => handleSelectText(31, 49)}
+                className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              >
+                Select "multiple words"
               </button>
               <button
                 onClick={() => handleSelectText(0, value.length)}
                 className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
               >
                 Select All
+              </button>
+              <button
+                onClick={() => handleSelectText(value.length, value.length)}
+                className="px-3 py-1 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
+              >
+                Move to End
               </button>
               <button
                 onClick={() => handleSelectText(0, 0)}
@@ -101,6 +139,9 @@ export function BackspaceDemo() {
                 </span>
               )}
             </p>
+            <div className="mt-2 text-sm text-blue-600">
+              <strong>Pro tip:</strong> Position cursor at the end of a word and press Ctrl+Backspace to delete the entire word!
+            </div>
           </div>
 
           <div className="mb-4">
@@ -137,13 +178,16 @@ export function BackspaceDemo() {
           </div>
 
           <div className="text-sm text-gray-600">
-            <h3 className="font-medium mb-1">Instructions:</h3>
+            <h3 className="font-medium mb-1">Testing Instructions:</h3>
             <ol className="list-decimal list-inside space-y-1">
               <li>Use the selection buttons above to select different parts of the text</li>
-              <li>Press backspace on the virtual keyboard to delete selected text</li>
-              <li>Long-press the backspace key to see progressive deletion</li>
+              <li>Press backspace on the virtual keyboard to delete selected text instantly</li>
+              <li>Long-press the backspace key to see progressive deletion (watch it speed up!)</li>
+              <li>Hold Ctrl and press backspace to delete whole words</li>
               <li>Try typing new text to replace selections</li>
-              <li>Use keyboard shortcuts like Ctrl+A, Ctrl+C, Ctrl+V</li>
+              <li>Use keyboard shortcuts like Ctrl+A (select all), Ctrl+C (copy), Ctrl+V (paste)</li>
+              <li>Position cursor after a word and test Ctrl+Backspace for word deletion</li>
+              <li>Notice the red pulsing effect on the backspace key during long-press</li>
             </ol>
           </div>
         </div>
