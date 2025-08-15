@@ -5,62 +5,95 @@
 /* Custom keyboard styles */
 @layer components {
   .keyboard-container {
-    @apply bg-keyboard-bg border border-keyboard-border rounded-lg p-4 shadow-lg font-keyboard;
+    background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      font-family: ui-monospace, SFMono-Regular, monospace;
   }
   
   .keyboard-row {
-    @apply flex gap-1 mb-1 justify-center;
+    display: flex;
+      gap: 0.25rem;
+      margin-bottom: 0.25rem;
+      justify-content: center;
   }
   
   .keyboard-key {
-    @apply 
-      bg-keyboard-key 
-      border border-keyboard-border 
-      rounded 
-      px-3 py-2 
-      text-keyboard-text 
-      font-medium 
-      text-sm 
-      select-none 
-      cursor-pointer 
-      transition-all 
-      duration-75
-      hover:bg-keyboard-key-hover 
-      active:bg-keyboard-key-active
-      active:animate-key-press;
+    background-color: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
+      padding: 0.5rem 0.75rem;
+      color: #212529;
+      font-weight: 500;
+      font-size: 0.875rem;
+      user-select: none;
+      cursor: pointer;
+      transition: all 75ms;
+    }
+    
+    .keyboard-key:hover {
+      background-color: #e9ecef;
+    }
+    
+    .keyboard-key:active {
+      background-color: #dee2e6;
+      animation: keyPress 0.1s ease-in-out;
   }
   
   .keyboard-key-wide {
-    @apply px-6;
+    padding-left: 1.5rem;
+      padding-right: 1.5rem;
   }
   
   .keyboard-key-extra-wide {
-    @apply px-12;
+    padding-left: 3rem;
+      padding-right: 3rem;
   }
   
   .autocomplete-container {
-    @apply 
-      absolute 
-      bg-white 
-      border border-gray-200 
-      rounded-md 
-      shadow-lg 
-      z-50 
-      max-h-48 
-      overflow-y-auto;
+    position: absolute;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      z-index: 50;
+      max-height: 12rem;
+      overflow-y: auto;
   }
   
   .autocomplete-item {
-    @apply 
-      px-3 py-2 
-      cursor-pointer 
-      border-b border-gray-100 
-      last:border-b-0
-      hover:bg-gray-50
-      transition-colors;
+    padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      border-bottom: 1px solid #f3f4f6;
+      transition: colors;
+    }
+    
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+    
+    .autocomplete-item:hover {
+      background-color: #f9fafb;
   }
   
   .autocomplete-item-active {
-    @apply bg-blue-50 text-blue-700;
+    background-color: #eff6ff;
+      color: #1d4ed8;
+  }
+}
+
+@keyframes keyPress {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.95);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
