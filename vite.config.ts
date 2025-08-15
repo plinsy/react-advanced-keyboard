@@ -21,10 +21,11 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react(),
+      tailwindcss(),
       dts({
         insertTypesEntry: true,
         include: ['src/**/*'],
-        exclude: ['src/**/*.test.*', 'src/**/*.stories.*']
+        exclude: ['src/**/*.test.*', 'src/**/*.stories.*', 'src/main.tsx', 'src/App.tsx', 'src/pages/**/*']
       })
     ],
     build: {
@@ -35,11 +36,12 @@ export default defineConfig(({ mode }) => {
         fileName: (format) => `index.${format}.js`
       },
       rollupOptions: {
-        external: ['react', 'react-dom'],
+        external: ['react', 'react-dom', 'react/jsx-runtime'],
         output: {
           globals: {
             react: 'React',
-            'react-dom': 'ReactDOM'
+            'react-dom': 'ReactDOM',
+            'react/jsx-runtime': 'jsxRuntime'
           }
         }
       },

@@ -33,5 +33,5 @@ export {
   rankSuggestions,
 } from './utils';
 
-// Styles (users need to import this separately)
-export const styles = './index.css';
+// Import styles for proper bundling
+import './index.css';

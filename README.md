@@ -1,6 +1,35 @@
-# Advanced React Keyboard Component
+# React Advanced Keyboard
+
+[![npm version](https://badge.fury.io/js/react-advanced-keyboard.svg)](https://badge.fury.io/js/react-advanced-keyboard)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A highly configurable virtual keyboard component for React with comprehensive layout support, autocomplete functionality, and platform-specific customization.
+
+## 🚀 Quick Start
+
+```bash
+npm install react-advanced-keyboard
+# or
+pnpm add react-advanced-keyboard
+```
+
+```tsx
+import { Keyboard } from 'react-advanced-keyboard';
+
+function App() {
+  const [value, setValue] = useState('');
+
+  return (
+    <Keyboard
+      value={value}
+      onChange={setValue}
+      layout="qwerty"
+      showAutocomplete
+    />
+  );
+}
+```
 
 ## 🚀 Features
 
@@ -77,7 +106,8 @@ pnpm add react-advanced-keyboard
 ```tsx
 import React, { useState } from 'react';
 import { Keyboard } from 'react-advanced-keyboard';
-import { qwertyWindowsLayout } from 'react-advanced-keyboard/layouts';
+// Import styles
+import 'react-advanced-keyboard/styles';
 
 function App() {
   const [value, setValue] = useState('');
@@ -88,13 +118,23 @@ function App() {
       <Keyboard
         value={value}
         onChange={setValue}
-        layout={qwertyWindowsLayout}
+        layout="qwerty"
         theme="light"
         enableAutocomplete={true}
       />
     </div>
   );
 }
+```
+
+### Alternative: Manual CSS Import
+
+If you prefer to import CSS separately:
+
+```tsx
+import { Keyboard } from 'react-advanced-keyboard';
+// Import CSS file manually
+import 'react-advanced-keyboard/dist/react-advanced-keyboard.css';
 ```
 
 ## 🔧 Configuration

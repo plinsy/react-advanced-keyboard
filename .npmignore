@@ -1,0 +1,49 @@
+# Source files
+src/
+public/
+
+# Development files
+.vscode/
+.github/
+*.md
+!README.md
+!LICENSE
+
+# Configuration files
+vite.config.ts
+tsconfig*.json
+eslint.config.js
+tailwind.config.js
+postcss.config.js
+pnpm-workspace.yaml
+pnpm-lock.yaml
+
+# Demo and test files
+src/pages/
+src/App.tsx
+src/main.tsx
+src/App.css
+index.html
+
+# Development dependencies and caches
+node_modules/
+.pnpm-store/
+*.log
+*.local
+.DS_Store
+
+# Build artifacts (except dist)
+dist-ssr/
+coverage/
+dist/vite.svg
+
+# IDE files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+Thumbs.db

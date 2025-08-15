@@ -1,7 +1,7 @@
 import React from 'react';
 import type { KeyboardConfig, KeyboardLayout } from '../types';
 import { availableLayouts } from '../layouts';
-import { getRecommendedLayout as getRecommendedLayoutUtil, detectPlatform } from '../keyboardUtils';
+import { getRecommendedLayout as getRecommendedLayoutUtil } from '../keyboardUtils';
 
 interface KeyboardConfiguratorProps {
   config: KeyboardConfig;
@@ -16,7 +16,7 @@ export const KeyboardConfigurator: React.FC<KeyboardConfiguratorProps> = ({
   currentLayout,
   onLayoutChange,
 }) => {
-  const handleConfigChange = (key: keyof KeyboardConfig, value: any) => {
+  const handleConfigChange = (key: keyof KeyboardConfig, value: boolean | string) => {
     const newConfig = { ...config, [key]: value };
     onConfigChange(newConfig);
     
@@ -44,7 +44,7 @@ export const KeyboardConfigurator: React.FC<KeyboardConfiguratorProps> = ({
           <label className="block text-sm font-medium mb-2 text-gray-700">Layout Type</label>
           <select 
             value={config.layout}
-            onChange={(e) => handleConfigChange('layout', e.target.value as any)}
+            onChange={(e) => handleConfigChange('layout', e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="qwerty">QWERTY</option>
@@ -58,7 +58,7 @@ export const KeyboardConfigurator: React.FC<KeyboardConfiguratorProps> = ({
           <label className="block text-sm font-medium mb-2 text-gray-700">Platform</label>
           <select 
             value={config.platform}
-            onChange={(e) => handleConfigChange('platform', e.target.value as any)}
+            onChange={(e) => handleConfigChange('platform', e.target.value)}
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="windows">Windows/PC</option>

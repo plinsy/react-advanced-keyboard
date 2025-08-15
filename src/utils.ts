@@ -122,7 +122,7 @@ export function applySuggestion(
 /**
  * Debounce function for async suggestions
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {

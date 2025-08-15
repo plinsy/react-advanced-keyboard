@@ -643,7 +643,7 @@ export function useKeyboard(options: UseKeyboardOptions = {}) {
         });
         return;
     }
-  }, [state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, updateValueWithCallback, updateSelection, onShortcut, inputRef]);
+  }, [state.isShiftPressed, state.isCapsLockOn, state.isCtrlPressed, state.showSuggestions, state.activeSuggestionIndex, state.suggestions, state.lastDeletedPosition, state.progressiveDeletionActive, updateValueWithCallback, updateSelection, onShortcut, inputRef]);
 
   const selectSuggestion = useCallback((index: number) => {
     if (index >= 0 && index < state.suggestions.length) {
