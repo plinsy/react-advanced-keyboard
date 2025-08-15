@@ -47,7 +47,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/plinsy/react-advanced-keyboard.git"
+    "url": "git+https://github.com/plinsy/react-advanced-keyboard.git"
   },
   "bugs": {
     "url": "https://github.com/plinsy/react-advanced-keyboard/issues"
